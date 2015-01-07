@@ -331,7 +331,7 @@ public class PhoneStatusBar extends BaseStatusBar implements DemoMode,
     // the icons themselves
     IconMerger mNotificationIcons;
     View mNotificationIconArea;
-    TextView mBlissLabel;
+    TextView mRadiumLabel;
 
     // [+>
     View mMoreIcon;
@@ -526,13 +526,13 @@ public class PhoneStatusBar extends BaseStatusBar implements DemoMode,
                             UserHandle.USER_CURRENT);
             mAutomaticBrightness = mode != Settings.System.SCREEN_BRIGHTNESS_MODE_MANUAL;
             mBrightnessControl = Settings.System.getIntForUser(
-                    resolver, Settings.System.STATUS_BAR_BRIGHTNESS_CONTROL, 0,
+                    mContext.getContentResolver(), Settings.System.STATUS_BAR_BRIGHTNESS_CONTROL, 0,
                     UserHandle.USER_CURRENT) == 1;
 
             final int oldClockLocation = mClockLocation;
             final View oldClockView = mClockView;
             mClockLocation = Settings.System.getIntForUser(
-                    resolver, Settings.System.STATUS_BAR_CLOCK, Clock.STYLE_CLOCK_RIGHT,
+                    mContext.getContentResolver(), Settings.System.STATUS_BAR_CLOCK, Clock.STYLE_CLOCK_RIGHT,
                     UserHandle.USER_CURRENT);
             updateClockView();
 
@@ -557,7 +557,7 @@ public class PhoneStatusBar extends BaseStatusBar implements DemoMode,
             }
 
             if (mNavigationBarView != null) {
-                boolean navLeftInLandscape = Settings.System.getIntForUser(resolver,
+                boolean navLeftInLandscape = Settings.System.getIntForUser(mContext.getContentResolver(),
                         Settings.System.NAVBAR_LEFT_IN_LANDSCAPE, 0, UserHandle.USER_CURRENT) == 1;
                 mNavigationBarView.setLeftInLandscape(navLeftInLandscape);
             }
@@ -565,14 +565,14 @@ public class PhoneStatusBar extends BaseStatusBar implements DemoMode,
             // This method reads Settings.Secure.RECENTS_LONG_PRESS_ACTIVITY
             updateCustomRecentsLongPressHandler(false);
 
-            mShowStatusBarCarrier = Settings.System.getIntForUser(resolver,
+            mShowStatusBarCarrier = Settings.System.getIntForUser(mContext.getContentResolver(),
                     Settings.System.STATUS_BAR_CARRIER, 0, mCurrentUserId) == 1;
             showStatusBarCarrierLabel(mShowStatusBarCarrier);
             mGreeting = Settings.System.getStringForUser(resolver,
                     Settings.System.STATUS_BAR_GREETING,
                     UserHandle.USER_CURRENT);
             if (mGreeting != null && !TextUtils.isEmpty(mGreeting)) {
-                mBlissLabel.setText(mGreeting);
+                mRadiumLabel.setText(mGreeting);
             }
 
             // This method reads Settings.Secure.RECENTS_LONG_PRESS_ACTIVITY
@@ -642,7 +642,7 @@ public class PhoneStatusBar extends BaseStatusBar implements DemoMode,
                 removeNavigationBar();
             }
 
-            mShowLabelTimeout = Settings.System.getIntForUser(resolver,
+            mShowLabelTimeout = Settings.System.getIntForUser(mContext.getContentResolver(),
                     Settings.System.STATUS_BAR_GREETING_TIMEOUT, 400, mCurrentUserId);
 
             // Send a broadcast to Settings to update Key disabling when user changes
@@ -1051,7 +1051,7 @@ public class PhoneStatusBar extends BaseStatusBar implements DemoMode,
         mNotificationIconArea = mStatusBarView.findViewById(R.id.notification_icon_area_inner);
         mNotificationIcons = (IconMerger)mStatusBarView.findViewById(R.id.notificationIcons);
         mMoreIcon = mStatusBarView.findViewById(R.id.moreIcon);
-        mBlissLabel = (TextView)mStatusBarView.findViewById(R.id.bliss_custom_label);
+        mRadiumLabel = (TextView)mStatusBarView.findViewById(R.id.radium_custom_label);
         mNotificationIcons.setOverflowIndicator(mMoreIcon);
         mStatusBarContents = (LinearLayout)mStatusBarView.findViewById(R.id.status_bar_contents);
 
@@ -2552,9 +2552,9 @@ public class PhoneStatusBar extends BaseStatusBar implements DemoMode,
             } else {
                 if (mGreeting != null && !TextUtils.isEmpty(mGreeting) && mShowLabel) {
                     if (animate) {
-                        mBlissLabel.setVisibility(View.VISIBLE);
-                        mBlissLabel.animate().cancel();
-                        mBlissLabel.animate()
+                        mRadiumLabel.setVisibility(View.VISIBLE);
+                        mRadiumLabel.animate().cancel();
+                        mRadiumLabel.animate()
                                 .alpha(1f)
                                 .setDuration(mShowLabelTimeout)
                                 .setInterpolator(ALPHA_IN)
@@ -2637,8 +2637,8 @@ public class PhoneStatusBar extends BaseStatusBar implements DemoMode,
     }
 
     protected void labelAnimatorFadeOut(final boolean animate) {
-        mBlissLabel.animate().cancel();
-        mBlissLabel.animate()
+        mRadiumLabel.animate().cancel();
+        mRadiumLabel.animate()
                 .alpha(0f)
                 .setDuration(200)
                 .setStartDelay(1200)
@@ -2646,7 +2646,7 @@ public class PhoneStatusBar extends BaseStatusBar implements DemoMode,
                 .withEndAction(new Runnable() {
             @Override
             public void run() {
-                mBlissLabel.setVisibility(View.GONE);
+                mRadiumLabel.setVisibility(View.GONE);
                 animateStatusBarShow(mNotificationIconArea, animate);
             }
         });
