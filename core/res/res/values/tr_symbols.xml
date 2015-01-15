@@ -32,4 +32,9 @@
    <java-symbol type="style" name="Animation.Toast.Translucent" />
    <java-symbol type="style" name="Animation.Toast.SlideRightLeft" />
    <java-symbol type="style" name="Animation.Toast.SlideLeftRight" />
+
+  <!-- Power menu -->
+  <java-symbol type="drawable" name="ic_lock_screenrecord" />
+  <java-symbol type="string" name="global_action_screenrecord" />
+
 </resources>
