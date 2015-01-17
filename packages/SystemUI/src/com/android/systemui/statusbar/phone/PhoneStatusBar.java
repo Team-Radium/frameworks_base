@@ -371,6 +371,10 @@ public class PhoneStatusBar extends BaseStatusBar implements DemoMode,
 
     private boolean mShowCarrierInPanel = false;
 
+    // battery
+    private BatteryMeterView mBatteryView;
+    private BatteryLevelTextView mBatteryLevel;
+
     // position
     int[] mPositionTmp = new int[2];
     boolean mExpandedVisible;
@@ -470,6 +474,9 @@ public class PhoneStatusBar extends BaseStatusBar implements DemoMode,
                     Settings.System.PIE_CONTROLS), false, this, UserHandle.USER_ALL);
             resolver.registerContentObserver(Settings.System.getUriFor(
                     Settings.System.NAVIGATION_BAR_SHOW), false, this, UserHandle.USER_ALL);
+            resolver.registerContentObserver(Settings.System.getUriFor(
+                    Settings.System.STATUS_BAR_BATTERY_STATUS_TEXT_COLOR),
+                    false, this, UserHandle.USER_ALL);
             update();
         }
 
@@ -483,6 +490,9 @@ public class PhoneStatusBar extends BaseStatusBar implements DemoMode,
             } else if (uri.equals(Settings.System.getUriFor(
                     Settings.System.NAVIGATION_BAR_SHOW))) {
                 mNavigationBarOverlay.setIsExpanded(noNavBar());
+            } else if (uri.equals(Settings.System.getUriFor(
+                    Settings.System.STATUS_BAR_BATTERY_STATUS_TEXT_COLOR))) {
+                updateBatteryLevelTextColor();				
             }
             update();
         }
@@ -1017,6 +1027,9 @@ public class PhoneStatusBar extends BaseStatusBar implements DemoMode,
         if (mClockController == null) mClockController = new Clock(mContext, mClockView);
         updateClockView();
 
+        mBatteryView = (BatteryMeterView) mStatusBarView.findViewById(R.id.battery);
+        mBatteryLevel = (BatteryLevelTextView) mStatusBarView.findViewById(R.id.battery_level_text);
+
         mStackScroller = (NotificationStackScrollLayout) mStatusBarWindowContent.findViewById(
                 R.id.notification_stack_scroller);
         mStackScroller.setLongPressListener(getNotificationLongClicker());
@@ -1089,7 +1102,7 @@ public class PhoneStatusBar extends BaseStatusBar implements DemoMode,
             mLocationController = new LocationControllerImpl(mContext); // will post a notification
         }
         if (mBatteryController == null) {
-            mBatteryController = new BatteryController(mContext, mHandler);
+            mBatteryController = new BatteryController(mContext);
             mBatteryController.addStateChangedCallback(new BatteryStateChangeCallback() {
                 @Override
                 public void onPowerSaveChanged() {
@@ -1101,11 +1114,6 @@ public class PhoneStatusBar extends BaseStatusBar implements DemoMode,
 
                 @Override
                 public void onBatteryLevelChanged(int level, boolean pluggedIn, boolean charging) {
-                    // noop
-                }
-
-                @Override
-                public void onBatteryStyleChanged(int style, int percentMode) {
                     // noop
                 }
             });
@@ -1249,10 +1257,8 @@ public class PhoneStatusBar extends BaseStatusBar implements DemoMode,
         mUserInfoController.reloadUserInfo();
 
         mHeader.setBatteryController(mBatteryController);
-        ((BatteryMeterView) mStatusBarView.findViewById(R.id.battery)).setBatteryController(
-                mBatteryController);
-        ((BatteryLevelTextView) mStatusBarView.findViewById(R.id.battery_level_text))
-                .setBatteryController(mBatteryController);
+        mBatteryView.setBatteryController(mBatteryController);
+        mBatteryLevel.setBatteryController(mBatteryController);
         mKeyguardStatusBar.setBatteryController(mBatteryController);
         mHeader.setNextAlarmController(mNextAlarmController);
         mHeader.setWeatherController(mWeatherController);
@@ -1262,6 +1268,7 @@ public class PhoneStatusBar extends BaseStatusBar implements DemoMode,
                 new Intent(pm.isScreenOn() ? Intent.ACTION_SCREEN_ON : Intent.ACTION_SCREEN_OFF));
 
         startGlyphRasterizeHack();
+        updateBatteryLevelTextColor();
         return mStatusBarView;
     }
 
@@ -2410,6 +2417,13 @@ public class PhoneStatusBar extends BaseStatusBar implements DemoMode,
                 }
             }
         }
+    }
+
+
+    private void updateBatteryLevelTextColor() {
+        if (mBatteryLevel != null) {
+            mBatteryLevel.setTextColor(false);
+        }		
     }
 
     private int adjustDisableFlags(int state) {
@@ -3836,8 +3850,8 @@ public class PhoneStatusBar extends BaseStatusBar implements DemoMode,
         if (mZenModeController != null) {
             mZenModeController.setUserId(mCurrentUserId);
         }
-        if (mBatteryController != null) {
-            mBatteryController.setUserId(mCurrentUserId);
+        if (mMSimNetworkController != null) {
+            mMSimNetworkController.setUserId(mCurrentUserId);
         }
     }
 

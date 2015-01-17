@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 2010 The Android Open Source Project
+ * Copyright (C) 2014-2015 The MoKee OpenSource Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,14 +23,21 @@ import static android.net.NetworkCapabilities.TRANSPORT_CELLULAR;
 import static android.net.NetworkCapabilities.TRANSPORT_ETHERNET;
 import static android.net.NetworkCapabilities.TRANSPORT_WIFI;
 
+import android.app.Notification;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
+import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.res.Resources;
+import android.database.ContentObserver;
+import android.media.RingtoneManager;
 import android.net.ConnectivityManager;
 import android.net.NetworkCapabilities;
 import android.net.NetworkInfo;
+import android.net.Uri;
 import android.net.wifi.WifiConfiguration;
 import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
@@ -39,6 +47,7 @@ import android.os.Handler;
 import android.os.Message;
 import android.os.Messenger;
 import android.os.SystemProperties;
+import android.os.UserHandle;
 import android.provider.Settings;
 import android.telephony.PhoneStateListener;
 import android.telephony.ServiceState;
@@ -51,6 +60,7 @@ import android.text.TextUtils;
 import android.text.format.DateFormat;
 import android.util.Log;
 import android.util.SparseArray;
+import android.widget.Toast;
 
 import com.android.internal.annotations.VisibleForTesting;
 import com.android.internal.telephony.IccCardConstants;
@@ -68,6 +78,7 @@ import java.util.BitSet;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -85,6 +96,14 @@ public class NetworkControllerImpl extends BroadcastReceiver
     static final boolean RECORD_HISTORY = true;
     // If RECORD_HISTORY how many to save, must be a power of 2.
     static final int HISTORY_SIZE = 16;
+    static String mWifiSsid;
+    static String oldWifiSsid = "";
+    static boolean mConnectionAtBoot = true;
+    int mWifiNotifications = 0;
+    NotificationManager nm;
+    private int mStoredSSIDs;
+    LinkedList mConnectionsList = new LinkedList();
+    protected int mInetCondition = 0;
 
     private static final int INET_CONDITION_THRESHOLD = 50;
 
@@ -142,6 +161,30 @@ public class NetworkControllerImpl extends BroadcastReceiver
     // The current user ID.
     private int mCurrentUserId;
 
+    private final class SettingsObserver extends ContentObserver {
+        SettingsObserver(Handler handler) {
+            super(handler);
+        }
+
+        void observe() {
+            ContentResolver resolver = mContext.getContentResolver();
+            resolver.registerContentObserver(Settings.System.getUriFor(
+                    Settings.System.STATUS_BAR_SHOW_NETWORK_ACTIVITY),
+                    false, this, UserHandle.USER_ALL);
+            mDirectionArrowsEnabled = Settings.System.getIntForUser(resolver,
+                    Settings.System.STATUS_BAR_SHOW_NETWORK_ACTIVITY,
+                    0, UserHandle.USER_CURRENT) == 0 ? false : true;
+        }
+
+        @Override
+        public void onChange(boolean selfChange) {
+            mDirectionArrowsEnabled = Settings.System.getIntForUser(mContext.getContentResolver(),
+                    Settings.System.STATUS_BAR_SHOW_NETWORK_ACTIVITY,
+                    0, UserHandle.USER_CURRENT) == 0 ? false : true;
+            refreshViews();
+        }
+    }
+
     /**
      * Construct this controller object and register for updates.
      */
@@ -167,6 +210,10 @@ public class NetworkControllerImpl extends BroadcastReceiver
         mConnectivityManager = connectivityManager;
         mHasMobileDataFeature =
                 mConnectivityManager.isNetworkSupported(ConnectivityManager.TYPE_MOBILE);
+
+        // Register settings observer and set initial preferences
+        SettingsObserver settingsObserver = new SettingsObserver(new Handler());
+        settingsObserver.observe();
 
         // telephony
         mPhone = (TelephonyManager) mContext.getSystemService(Context.TELEPHONY_SERVICE);
@@ -397,7 +444,6 @@ public class NetworkControllerImpl extends BroadcastReceiver
             // data sim or not.
             for (MobileSignalController controller : mMobileSignalControllers.values()) {
                 controller.handleBroadcast(intent);
-            }
         } else if (action.equals(TelephonyIntents.ACTION_SIM_STATE_CHANGED)) {
             // Might have different subscriptions now.
             updateMobileControllers();
@@ -416,6 +462,55 @@ public class NetworkControllerImpl extends BroadcastReceiver
                 mWifiSignalController.handleBroadcast(intent);
             }
         }
+    }
+
+    public void refreshSignalCluster(SignalCluster cluster) {
+        if (mDemoMode) return;
+        cluster.setWifiIndicators(
+                // only show wifi in the cluster if connected or if wifi-only
+                mWifiEnabled && (mWifiConnected || !mHasMobileDataFeature || mAppopsStrictEnabled),
+                mWifiIconId,
+                mInetCondition,
+                mWifiActivityIconId,
+                mContentDescriptionWifi);
+
+        if (mIsWimaxEnabled && mWimaxConnected) {
+            // wimax is special
+            cluster.setMobileDataIndicators(
+                    true,
+                    mAlwaysShowCdmaRssi ? mPhoneSignalIconId : mWimaxIconId,
+                    mInetCondition,
+                    mMobileActivityIconId,
+                    mDataTypeIconId,
+                    mContentDescriptionWimax,
+                    mContentDescriptionDataType,
+                    mDataTypeIconId == TelephonyIcons.ROAMING_ICON,
+                    false /* isTypeIconWide */,
+                    mNoSimIconId);
+        } else {
+            // normal mobile data
+            cluster.setMobileDataIndicators(
+                    mHasMobileDataFeature,
+                    mShowPhoneRSSIForData ? mPhoneSignalIconId : mDataSignalIconId,
+                    mInetCondition,
+                    mMobileActivityIconId,
+                    mDataTypeIconId,
+                    mContentDescriptionPhoneSignal,
+                    mContentDescriptionDataType,
+                    mDataTypeIconId == TelephonyIcons.ROAMING_ICON,
+                    isTypeIconWide(mDataTypeIconId),
+                    mNoSimIconId);
+            if (DEBUG) {
+                Log.d(TAG, "refreshSignalCluster - setMobileDataIndicators: "
+                        + " mHasMobileDataFeature = " + String.valueOf(mHasMobileDataFeature)
+                        + " mPhoneSignalIconId = " + getResourceName(mPhoneSignalIconId)
+                        + " mDataSignalIconId = " + getResourceName(mDataSignalIconId)
+                        + " mMobileActivityIconId = " + getResourceName(mMobileActivityIconId)
+                        + " mDataTypeIconId = " + getResourceName(mDataTypeIconId)
+                        + " mNoSimIconId = " + getResourceName(mNoSimIconId));
+            }
+        }
+        cluster.setIsAirplaneMode(mAirplaneMode, mAirplaneIconId);
     }
 
     @VisibleForTesting
@@ -1215,6 +1310,63 @@ public class NetworkControllerImpl extends BroadcastReceiver
                             mCurrentState.isEmergency ? null : mCurrentState.networkName,
                             // Only wide if actually showing something.
                             icons.mIsWide && qsTypeIcon != 0);
+            // Now for things that should only be shown when actually using mobile data.
+            if (mDataConnected) {
+                combinedSignalIconId = mDataSignalIconId;
+                if (mDirectionArrowsEnabled) {
+                    switch (mDataActivity) {
+                        case TelephonyManager.DATA_ACTIVITY_IN:
+                            mMobileActivityIconId = R.drawable.stat_sys_signal_in;
+                            break;
+                        case TelephonyManager.DATA_ACTIVITY_OUT:
+                            mMobileActivityIconId = R.drawable.stat_sys_signal_out;
+                            break;
+                        case TelephonyManager.DATA_ACTIVITY_INOUT:
+                            mMobileActivityIconId = R.drawable.stat_sys_signal_inout;
+                            break;
+                        default:
+                            mMobileActivityIconId = R.drawable.stat_sys_signal_none;
+                            break;
+                    }
+                } else {
+                    mMobileActivityIconId = 0;
+                }
+
+                combinedLabel = mobileLabel;
+                combinedActivityIconId = mMobileActivityIconId;
+                combinedSignalIconId = mDataSignalIconId; // set by updateDataIcon()
+                mContentDescriptionCombinedSignal = mContentDescriptionDataType;
+            } else {
+                mMobileActivityIconId = 0;
+            }
+        }
+
+        if (mWifiConnected) {
+            if (mWifiSsid == null) {
+                wifiLabel = context.getString(R.string.status_bar_settings_signal_meter_wifi_nossid);
+                mWifiActivityIconId = 0; // no wifis, no bits
+            } else {
+                wifiLabel = mWifiSsid;
+                if (DEBUG) {
+                    wifiLabel += "xxxxXXXXxxxxXXXX";
+                }
+                if (mDirectionArrowsEnabled) {
+                    switch (mWifiActivity) {
+                        case WifiManager.DATA_ACTIVITY_IN:
+                            mWifiActivityIconId = R.drawable.stat_sys_signal_in;
+                            break;
+                        case WifiManager.DATA_ACTIVITY_OUT:
+                            mWifiActivityIconId = R.drawable.stat_sys_signal_out;
+                            break;
+                        case WifiManager.DATA_ACTIVITY_INOUT:
+                            mWifiActivityIconId = R.drawable.stat_sys_signal_inout;
+                            break;
+                        case WifiManager.DATA_ACTIVITY_NONE:
+                            mWifiActivityIconId = R.drawable.stat_sys_signal_none;
+                            break;
+                    }
+                } else {
+                    mWifiActivityIconId = 0;
                 }
             }
             int typeIcon = showDataIcon ? icons.mDataType : 0;
@@ -1758,22 +1910,42 @@ public class NetworkControllerImpl extends BroadcastReceiver
                 }
             }
 
-            protected void toString(StringBuilder builder) {
-                builder.append("connected=").append(connected).append(',')
-                        .append("enabled=").append(enabled).append(',')
-                        .append("level=").append(level).append(',')
-                        .append("inetCondition=").append(inetCondition).append(',')
-                        .append("iconGroup=").append(iconGroup).append(',')
-                        .append("activityIn=").append(activityIn).append(',')
-                        .append("activityOut=").append(activityOut).append(',')
-                        .append("rssi=").append(rssi).append(',')
-                        .append("lastModified=").append(DateFormat.format("MM-dd hh:mm:ss", time));
-            }
-
             @Override
             public boolean equals(Object o) {
                 if (!o.getClass().equals(getClass())) {
                     return false;
+            if (wifi != null) {
+                boolean show = wifi.equals("show");
+                String level = args.getString("level");
+                if (level != null) {
+                    mDemoWifiLevel = level.equals("null") ? -1
+                            : Math.min(Integer.parseInt(level), WifiIcons.WIFI_LEVEL_COUNT - 1);
+                }
+                int iconId = mDemoWifiLevel < 0 ? R.drawable.stat_sys_wifi_signal_null
+                        : WifiIcons.WIFI_SIGNAL_STRENGTH[mDemoInetCondition][mDemoWifiLevel];
+                for (SignalCluster cluster : mSignalClusters) {
+                    cluster.setWifiIndicators(
+                            show,
+                            iconId,
+                            mInetCondition,
+                            mDemoWifiActivityId,
+                            "Demo");
+                }
+                refreshViews();
+            }
+
+                for (SignalCluster cluster : mSignalClusters) {
+                    cluster.setMobileDataIndicators(
+                            show,
+                            iconId,
+                            mInetCondition,
+                            mDemoMobileActivityId,
+                            mDemoDataTypeIconId,
+                            "Demo",
+                            "Demo",
+                            mDemoDataTypeIconId == TelephonyIcons.ROAMING_ICON,
+                            isTypeIconWide(mDemoDataTypeIconId),
+                            mNoSimIconId);
                 }
                 State other = (State) o;
                 return other.connected == connected
