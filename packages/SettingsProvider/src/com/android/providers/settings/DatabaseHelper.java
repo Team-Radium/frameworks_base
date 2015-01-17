@@ -2613,10 +2613,12 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                         R.string.def_date_format);
             }
 
-            loadIntegerSetting(stmt, Settings.System.STATUS_BAR_NOTIF_COUNT,
+            loadIntegerSetting(stmt, Settings.System.STATUS_BAR_SHOW_NOTIF_COUNT,
                     R.integer.def_notif_count);
 
-            loadIntegerSetting(stmt, Settings.System.STATUS_BAR_BATTERY_STYLE,
+            loadHeadsUpSetting(stmt);
+
+            loadIntegerSetting(stmt, Settings.System.STATUS_BAR_BATTERY_STATUS_STYLE,
                     R.integer.def_battery_style);
 
             loadIntegerSetting(stmt, Settings.System.ENABLE_FORWARD_LOOKUP,
