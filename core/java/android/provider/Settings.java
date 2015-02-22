@@ -3517,7 +3517,7 @@ public final class Settings {
          * @hide
          */
         public static final String STATUS_BAR_AM_PM = "status_bar_am_pm";
-        
+
         /**
          * Shows custom date before clock time
          * 0 - No Date
@@ -3528,11 +3528,20 @@ public final class Settings {
         public static final String STATUS_BAR_DATE = "status_bar_date";
 
         /**
+         * Sets the date string style
+         * 0 - Regular style
+         * 1 - Lowercase
+         * 2 - Uppercase
+         * @hide
+         */
+        public static final String STATUS_BAR_DATE_STYLE = "status_bar_date_style";
+
+        /**
          * Stores the java DateFormat string for the date
          * @hide
          */
         public static final String STATUS_BAR_DATE_FORMAT = "status_bar_date_format";
-        
+
         /**
          * Display style of the status bar battery information
          * 0: Display the battery an icon in portrait mode
@@ -3544,7 +3553,7 @@ public final class Settings {
          * @hide
          */
         public static final String STATUS_BAR_BATTERY_STYLE = "status_bar_battery_style";
-        
+
         /**
          * Sets the date string style
          * 0 - Regular style
@@ -3552,15 +3561,7 @@ public final class Settings {
          * 2 - Uppercase
          * @hide
          */
-        public static final String STATUS_BAR_DATE_STYLE = "status_bar_date_style";
 
-        /**
-         * Status bar battery %
-         * 0: Hide the battery percentage
-         * 1: Display the battery percentage inside the icon
-         * 2: Display the battery percentage next to the icon
-         * @hide
-         */
         public static final String STATUS_BAR_SHOW_BATTERY_PERCENT = "status_bar_show_battery_percent";
 
         /**
