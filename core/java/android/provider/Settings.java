@@ -3933,12 +3933,17 @@ public final class Settings {
         public static final String ANIMATION_CONTROLS_EXIT_ONLY = "animation_controls_exit_only";
         public static final String ANIMATION_CONTROLS_REVERSE_EXIT = "animation_controls_reverse_exit";
 
-		/**
+	/**
          * Status bar greeting
          * @hide
          */
         public static final String STATUS_BAR_GREETING = "status_bar_greeting";
 
+        /**
+         * Status bar greeting timeout
+         * @hide
+         */
+        public static final String STATUS_BAR_GREETING_TIMEOUT = "status_bar_greeting_timeout";
 
         /**
          * Hide notification instead of remove when swiping headsup
@@ -3946,11 +3951,11 @@ public final class Settings {
          */
         public static final String HEADS_UP_DISMISS_ON_REMOVE = "heads_up_swipe_action";
 
-        /**
-         * Status bar greeting timeout
+	/**
+         * Hide notification 1 second after touching outside
          * @hide
          */
-        public static final String STATUS_BAR_GREETING_TIMEOUT = "status_bar_greeting_timeout";
+        public static final String HEADS_UP_TOUCH_OUTSIDE = "heads_up_touch_outside";
 
 	/**
          * show clear all recents button
