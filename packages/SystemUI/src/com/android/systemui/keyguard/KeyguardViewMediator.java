@@ -856,6 +856,11 @@ public class KeyguardViewMediator extends SystemUI {
                 return;
             }
 
+            if (isSecure()) {
+                Log.d(TAG, "current mode is SecurityMode, ignore hide keyguard");
+                return;
+            }
+
             if (!enabled && mShowing) {
                 if (mExitSecureCallback != null) {
                     if (DEBUG) Log.d(TAG, "in process of verifyUnlock request, ignoring");
