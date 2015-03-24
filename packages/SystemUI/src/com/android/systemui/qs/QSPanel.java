@@ -80,6 +80,8 @@ public class QSPanel extends ViewGroup {
     private boolean mListening;
     private boolean mClosingDetail;
 
+    private boolean mQSShadeTransparency = false;
+
     private Record mDetailRecord;
     private Callback mCallback;
     private BrightnessController mBrightnessController;
@@ -619,9 +621,16 @@ public class QSPanel extends ViewGroup {
     }
 
     public void setDetailBackgroundColor(int color) {
+        mQSShadeTransparency = Settings.System.getInt(mContext.getContentResolver(),
+            Settings.System.QS_TRANSPARENT_SHADE, 0) == 1;
         if (mDetail != null) {
-            mDetail.getBackground().setColorFilter(
-                    color, Mode.MULTIPLY);
+            if (mQSShadeTransparency) {
+                mDetail.getBackground().setColorFilter(
+                        color, Mode.MULTIPLY);
+            } else {
+                mDetail.getBackground().setColorFilter(
+                        color, Mode.SRC_OVER);
+            }
         }
     }
 
@@ -693,5 +702,42 @@ public class QSPanel extends ViewGroup {
         void onShowingDetail(QSTile.DetailAdapter detail);
         void onToggleStateChanged(boolean state);
         void onScanStateChanged(boolean state);
+    }
+
+    private class SettingsObserver extends ContentObserver {
+        SettingsObserver(Handler handler) {
+            super(handler);
+        }
+
+        void observe() {
+            ContentResolver resolver = mContext.getContentResolver();
+            resolver.registerContentObserver(Settings.System.getUriFor(
+                    Settings.System.QS_TRANSPARENT_SHADE),
+                    false, this, UserHandle.USER_ALL);
+            update();
+        }
+
+        void unobserve() {
+            ContentResolver resolver = mContext.getContentResolver();
+            resolver.unregisterContentObserver(this);
+        }
+
+        @Override
+        public void onChange(boolean selfChange) {
+            super.onChange(selfChange);
+            update();
+        }
+
+        @Override
+        public void onChange(boolean selfChange, Uri uri) {
+            update();
+        }
+
+        public void update() {
+            ContentResolver resolver = mContext.getContentResolver();
+            mQSShadeTransparency = Settings.System.getInt(
+            mContext.getContentResolver(), Settings.System.QS_TRANSPARENT_SHADE,
+                0) == 1;
+        }
     }
 }
