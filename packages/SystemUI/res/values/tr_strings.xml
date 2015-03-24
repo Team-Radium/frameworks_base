@@ -55,4 +55,7 @@
     <!-- Screen record notification error title -->
     <string name="screenrecord_notif_error">Unable to record screen</string>
 
+    <!-- Greeting -->
+    <string name="radium_label">Welcome to Radium</string>
+
 </resources>
