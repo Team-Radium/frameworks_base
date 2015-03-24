@@ -3939,6 +3939,13 @@ public final class Settings {
          */
         public static final String STATUS_BAR_GREETING = "status_bar_greeting";
 
+
+        /**
+        * Hide notification instead of remove when swiping headsup
+        * @hide
+        */
+        public static final String HEADS_UP_DISMISS_ON_REMOVE = "heads_up_swipe_action";
+
         /**
          * Status bar greeting timeout
          * @hide
@@ -4097,6 +4104,27 @@ public final class Settings {
          * @hide
          */
         public static final String LOCK_SCREEN_SHOW_WEATHER_LOCATION = "lock_screen_show_weather_location";
+
+        /**
+         * Heads Up Notifications
+         *
+         * @hide
+         */
+        public static final String HEADS_UP_NOTIFICATION = "heads_up_enabled";
+
+        /**
+         * Which applications to disable heads up notifications for
+         *
+         * @hide
+         */
+        public static final String HEADS_UP_CUSTOM_VALUES = "heads_up_custom_values";
+
+        /**
+         * Which applications to disable heads up notifications for
+         *
+         * @hide
+         */
+        public static final String HEADS_UP_BLACKLIST_VALUES = "heads_up_blacklist_values";
 
         /**
          * Settings to backup. This is here so that it's in the same place as the settings
