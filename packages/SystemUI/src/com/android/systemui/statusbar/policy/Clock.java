@@ -34,6 +34,7 @@ import android.text.format.DateFormat;
 import android.text.style.CharacterStyle;
 import android.text.style.RelativeSizeSpan;
 import android.widget.TextView;
+import android.view.View;
 
 import com.android.systemui.DemoMode;
 import com.android.systemui.R;
@@ -87,6 +88,8 @@ public class Clock implements DemoMode {
             ContentResolver resolver = mContext.getContentResolver();
             resolver.registerContentObserver(Settings.System.getUriFor(
                     Settings.System.STATUS_BAR_AM_PM), false, this, UserHandle.USER_ALL);
+            resolver.registerContentObserver(Settings.System.getUriFor(
+                    Settings.System.STATUSBAR_CLOCK_COLOR), false, this, UserHandle.USER_ALL);
             updateSettings();
         }
 
@@ -281,6 +284,18 @@ public class Clock implements DemoMode {
         ContentResolver resolver = mContext.getContentResolver();
         mAmPmStyle = (Settings.System.getIntForUser(resolver,
                 Settings.System.STATUS_BAR_AM_PM, 2, UserHandle.USER_CURRENT));
+        mClockFormatString = "";
+
+        int defaultColor = mContext.getResources().getColor(R.color.status_bar_clock_color);
+        int clockColor = Settings.System.getIntForUser(resolver,
+                Settings.System.STATUSBAR_CLOCK_COLOR, defaultColor,
+                UserHandle.USER_CURRENT);
+        if (clockColor == Integer.MIN_VALUE) {
+            // flag to reset the color
+            clockColor = defaultColor;
+        }
+
+        mClockView.setTextColor(clockColor);
         updateClock();
     }
 

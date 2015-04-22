@@ -3611,7 +3611,13 @@ public final class Settings {
         public static final String NAVIGATION_BAR_WIDTH = "navigation_bar_width";
 
         /**
-         * Whether navigation bar is placed on the left side in landscape mode
+         * Setting for clock color
+         * @hide
+         */
+        public static final String STATUSBAR_CLOCK_COLOR = "statusbar_clock_color";
+
+        /**
+         * Position of gesture anywhere trigger.  Value is either Gravity.LEFT or Gravity.RIGHT
          * @hide
          */
         public static final String NAVBAR_LEFT_IN_LANDSCAPE = "navigation_bar_left";
