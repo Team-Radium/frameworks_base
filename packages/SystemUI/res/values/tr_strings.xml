@@ -72,5 +72,8 @@
 
     <!-- Title shown in recents popup for showing app launch in floating mode -->
     <string name="recent_float_mode_title">Floating mode</string>
+    
+    <!-- TRDS -->
+    <string name="quick_settings_trds_label">TRDS</string>
 
 </resources>
