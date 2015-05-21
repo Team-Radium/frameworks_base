@@ -3253,9 +3253,14 @@ public final class Settings {
          */
         public static final String GESTURES_LONG_PRESS = "gestures_long_press";
 
+	/**
+         * Enable built in CAF task manager
+         * @hide
+         */
+        public static final String ENABLE_TASK_MANAGER = "enable_task_manager";
+
         /**
          * double tap Action
-         *
          * @hide
          */
         public static final String GESTURES_DOUBLE_TAP = "gestures_double_tap";
