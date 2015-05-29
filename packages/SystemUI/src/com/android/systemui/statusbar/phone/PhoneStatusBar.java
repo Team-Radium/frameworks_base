@@ -503,6 +503,9 @@ public class PhoneStatusBar extends BaseStatusBar implements DemoMode,
             resolver.registerContentObserver(Settings.System.getUriFor(
                     Settings.System.STATUS_BAR_GREETING_TIMEOUT),
                     false, this, UserHandle.USER_ALL);
+            resolver.registerContentObserver(Settings.System.getUriFor(
+                    Settings.System.STATUS_BAR_SHOW_TICKER),
+                    false, this, UserHandle.USER_ALL);
             update();
         }
 
@@ -516,6 +519,14 @@ public class PhoneStatusBar extends BaseStatusBar implements DemoMode,
             } else if (uri.equals(Settings.System.getUriFor(
                     Settings.System.NAVIGATION_BAR_SHOW))) {
                 mNavigationBarOverlay.setIsExpanded(noNavBar());
+            } else if (uri.equals(Settings.System.getUriFor(
+                    Settings.System.STATUS_BAR_SHOW_TICKER))) {
+                    mTickerEnabled = Settings.System.getIntForUser(
+                        mContext.getContentResolver(),
+                        Settings.System.STATUS_BAR_SHOW_TICKER,
+                        mContext.getResources().getBoolean(R.bool.enable_ticker)
+                        ? 1 : 0, UserHandle.USER_CURRENT) == 1;
+                initTickerView();
             }
             update();
         }
@@ -1138,6 +1149,10 @@ public class PhoneStatusBar extends BaseStatusBar implements DemoMode,
                         R.id.keyguard_indication_text));
         mKeyguardBottomArea.setKeyguardIndicationController(mKeyguardIndicationController);
 
+        mTickerEnabled = Settings.System.getIntForUser(mContext.getContentResolver(),
+                    Settings.System.STATUS_BAR_SHOW_TICKER,
+                    mContext.getResources().getBoolean(R.bool.enable_ticker)
+                            ? 1 : 0, UserHandle.USER_CURRENT) == 1;
         initTickerView();
 
         mEdgeBorder = res.getDimensionPixelSize(R.dimen.status_bar_edge_ignore);
