@@ -84,11 +84,6 @@ public class DeviceUtils {
         return context.getPackageManager().hasSystemFeature(PackageManager.FEATURE_LOCATION_GPS);
     }
 
-    public static boolean deviceSupportsImeSwitcher(Context ctx) {
-        Resources res = ctx.getResources();
-        return res.getBoolean(com.android.internal.R.bool.config_show_IMESwitcher);
-    }
-
     public static boolean adbEnabled(ContentResolver resolver) {
             return (Settings.Global.getInt(resolver, Settings.Global.ADB_ENABLED, 0)) == 1;
     }
@@ -133,8 +128,6 @@ public class DeviceUtils {
                         && !deviceSupportsVibrator(context)
                 || action.equals(RadiumActionConstants.ACTION_VIB_SILENT)
                         && !deviceSupportsVibrator(context)
-                || action.equals(RadiumActionConstants.ACTION_SMART_PULLDOWN)
-                        && isTablet(context)) {
             return false;
         }
         return true;
