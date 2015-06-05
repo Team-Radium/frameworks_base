@@ -27,4 +27,5 @@
     <dimen name="zen_mode_panel_radius">@dimen/notification_material_rounded_rect_radius</dimen>
 
     <dimen name="status_bar_expanded_header_elevation">4dp</dimen>
+
 </resources>
