@@ -14,7 +14,7 @@
 * limitations under the License.
 */
 
-package com.android.internal.util.own;
+package com.android.internal.util.radium;
 
 import android.content.Context;
 import android.content.Intent;

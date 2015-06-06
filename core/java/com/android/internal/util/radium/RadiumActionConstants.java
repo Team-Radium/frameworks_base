@@ -14,12 +14,12 @@
 * limitations under the License.
 */
 
-package com.android.internal.util.own;
+package com.android.internal.util.radium;
 
-public class OwnActionConstants {
+public class RadiumActionConstants {
 
     // key must fit with the values arrays from Settings to use
-    // OwnActions.java actions
+    // RadiumActions.java actions
     public static final String ACTION_HOME                 = "**home**";
     public static final String ACTION_BACK                 = "**back**";
     public static final String ACTION_SEARCH               = "**search**";
