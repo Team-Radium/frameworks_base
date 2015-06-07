@@ -127,7 +127,7 @@ public class DeviceUtils {
                 || action.equals(RadiumActionConstants.ACTION_VIB)
                         && !deviceSupportsVibrator(context)
                 || action.equals(RadiumActionConstants.ACTION_VIB_SILENT)
-                        && !deviceSupportsVibrator(context)
+                        && !deviceSupportsVibrator(context)) {
             return false;
         }
         return true;

@@ -33,10 +33,10 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 
-import com.android.internal.util.own.AppHelper;
-import com.android.internal.util.own.ActionHelper;
-import com.android.internal.util.own.ActionConfig;
-import com.android.internal.util.own.Action;
+import com.android.internal.util.radium.AppHelper;
+import com.android.internal.util.radium.ActionHelper;
+import com.android.internal.util.radium.ActionConfig;
+import com.android.internal.util.radium.Action;
 import com.android.internal.widget.LockPatternUtils;
 
 import com.android.keyguard.R;

@@ -153,7 +153,7 @@ public class ActionHelper {
                     Settings.System.PIE_BUTTONS_CONFIG,
                     UserHandle.USER_CURRENT);
         if (config == null) {
-            config = OwnActionConstants.NAVIGATION_CONFIG_DEFAULT;
+            config = RadiumActionConstants.NAVIGATION_CONFIG_DEFAULT;
         }
         return config;
     }
@@ -162,7 +162,7 @@ public class ActionHelper {
             ArrayList<ActionConfig> actionConfig, boolean reset) {
         String config;
         if (reset) {
-            config = OwnActionConstants.NAVIGATION_CONFIG_DEFAULT;
+            config = RadiumActionConstants.NAVIGATION_CONFIG_DEFAULT;
         } else {
             config = ConfigSplitHelper.setActionConfig(actionConfig, false);
         }
@@ -188,7 +188,7 @@ public class ActionHelper {
                     Settings.System.PIE_BUTTONS_CONFIG_SECOND_LAYER,
                     UserHandle.USER_CURRENT);
         if (config == null) {
-            config = OwnActionConstants.PIE_SECOND_LAYER_CONFIG_DEFAULT;
+            config = RadiumActionConstants.PIE_SECOND_LAYER_CONFIG_DEFAULT;
         }
         return config;
     }
@@ -197,7 +197,7 @@ public class ActionHelper {
             ArrayList<ActionConfig> actionConfig, boolean reset) {
         String config;
         if (reset) {
-            config = OwnActionConstants.PIE_SECOND_LAYER_CONFIG_DEFAULT;
+            config = RadiumActionConstants.PIE_SECOND_LAYER_CONFIG_DEFAULT;
         } else {
             config = ConfigSplitHelper.setActionConfig(actionConfig, false);
         }
@@ -250,7 +250,7 @@ public class ActionHelper {
         } else if (clickAction.equals(RadiumActionConstants.ACTION_VIB_SILENT)) {
             resId = systemUiResources.getIdentifier(
                         SYSTEMUI_METADATA_NAME + ":drawable/ic_sysbar_ring_vib_silent", null, null);
-        } else if (clickAction.equals(OwnActionConstants.ACTION_THEME_SWITCH)) {
+        } else if (clickAction.equals(RadiumActionConstants.ACTION_THEME_SWITCH)) {
             resId = systemUiResources.getIdentifier(
                         SYSTEMUI_METADATA_NAME + ":drawable/ic_sysbar_theme_switch", null, null);
         } else {

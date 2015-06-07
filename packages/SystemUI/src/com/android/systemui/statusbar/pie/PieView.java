@@ -37,7 +37,7 @@ import android.view.View;
 import android.view.ViewConfiguration;
 
 import com.android.internal.util.gesture.EdgeGesturePosition;
-import com.android.internal.util.own.OwnActionConstants;
+import com.android.internal.util.radium.RadiumActionConstants;
 
 import com.android.systemui.R;
 import com.android.systemui.statusbar.BaseStatusBar;
@@ -505,7 +505,7 @@ public class PieView extends View implements View.OnTouchListener {
                     && !mPreloadedRecentApps && mActiveItem != null && mStatusBar != null) {
                 String clickAction = mLongPressed
                         ? (String) mActiveItem.longTag : (String) mActiveItem.tag;
-                if (OwnActionConstants.ACTION_RECENTS.equals(clickAction)) {
+                if (RadiumActionConstants.ACTION_RECENTS.equals(clickAction)) {
                     mStatusBar.preloadRecentApps();
                     mPreloadedRecentApps = true;
                 }
@@ -521,7 +521,7 @@ public class PieView extends View implements View.OnTouchListener {
                     if (mActiveItem != null) {
                         String clickAction = mLongPressed
                                 ? (String) mActiveItem.longTag : (String) mActiveItem.tag;
-                        if (OwnActionConstants.ACTION_RECENTS.equals(clickAction)) {
+                        if (RadiumActionConstants.ACTION_RECENTS.equals(clickAction)) {
                             // Prepare preload for next call and block cancelPreload.
                             mPreloadedRecentApps = false;
                         }

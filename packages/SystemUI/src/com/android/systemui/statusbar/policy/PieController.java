@@ -63,12 +63,12 @@ import android.widget.ImageView;
 
 import com.android.internal.util.gesture.EdgeGesturePosition;
 import com.android.internal.util.gesture.EdgeServiceConstants;
-import com.android.internal.util.own.ActionConfig;
-import com.android.internal.util.own.OwnActionConstants;
-import com.android.internal.util.own.ActionHelper;
-import com.android.internal.util.own.Converter;
-import com.android.internal.util.own.ImageHelper;
-import com.android.internal.util.own.Action;
+import com.android.internal.util.radium.ActionConfig;
+import com.android.internal.util.radium.RadiumActionConstants;
+import com.android.internal.util.radium.ActionHelper;
+import com.android.internal.util.radium.Converter;
+import com.android.internal.util.radium.ImageHelper;
+import com.android.internal.util.radium.Action;
 import com.android.systemui.R;
 import com.android.systemui.statusbar.BaseStatusBar;
 import com.android.systemui.statusbar.phone.NavigationBarOverlay;
@@ -500,9 +500,9 @@ public class PieController implements BaseStatusBar.NavigationBarCallback, PieVi
         }
 
         if (!secondLayer) {
-            mMenuButton = constructItem(1, OwnActionConstants.ACTION_MENU,
-                    OwnActionConstants.ACTION_NULL,
-                    OwnActionConstants.ICON_EMPTY,
+            mMenuButton = constructItem(1, RadiumActionConstants.ACTION_MENU,
+                    RadiumActionConstants.ACTION_NULL,
+                    RadiumActionConstants.ICON_EMPTY,
                     minimumImageSize);
             mNavigationSlice.addItem(mMenuButton);
         }
@@ -515,11 +515,11 @@ public class PieController implements BaseStatusBar.NavigationBarCallback, PieVi
                 ActionConfig.getLongpressAction(),
                 ActionConfig.getIcon(), minimumImageSize));
 
-        if (ActionConfig.getClickAction().equals(OwnActionConstants.ACTION_HOME)) {
+        if (ActionConfig.getClickAction().equals(RadiumActionConstants.ACTION_HOME)) {
             layer.addItem(constructItem(buttonWidth,
-                    OwnActionConstants.ACTION_KEYGUARD_SEARCH,
+                    RadiumActionConstants.ACTION_KEYGUARD_SEARCH,
                     ActionConfig.getLongpressAction(),
-                    OwnActionConstants.ICON_EMPTY,
+                    RadiumActionConstants.ICON_EMPTY,
                     minimumImageSize));
         }
     }
@@ -535,7 +535,7 @@ public class PieController implements BaseStatusBar.NavigationBarCallback, PieVi
         PieItem item = new PieItem(mContext, mPieContainer, 0, width, clickAction,
                 longPressAction, view, iconType);
         item.setOnClickListener(this);
-        if (!longPressAction.equals(OwnActionConstants.ACTION_NULL)) {
+        if (!longPressAction.equals(RadiumActionConstants.ACTION_NULL)) {
             item.setOnLongClickListener(this);
         }
         return item;
@@ -547,9 +547,9 @@ public class PieController implements BaseStatusBar.NavigationBarCallback, PieVi
             view.setImageDrawable(d);
         }
 
-        if (iconUri != null && !iconUri.equals(OwnActionConstants.ICON_EMPTY)
-            && !iconUri.startsWith(OwnActionConstants.SYSTEM_ICON_IDENTIFIER)) {
-            if (clickAction.equals(OwnActionConstants.ACTION_BACK)) {
+        if (iconUri != null && !iconUri.equals(RadiumActionConstants.ICON_EMPTY)
+            && !iconUri.startsWith(RadiumActionConstants.SYSTEM_ICON_IDENTIFIER)) {
+            if (clickAction.equals(RadiumActionConstants.ACTION_BACK)) {
                 // Back icon image needs to be handled seperatly.
                 // All other is handled in PieItem.
                 mBackIcon = prepareBackIcon(d, true);
@@ -560,8 +560,8 @@ public class PieController implements BaseStatusBar.NavigationBarCallback, PieVi
             return 2;
         } else {
             if (clickAction.startsWith("**")
-                    || iconUri.startsWith(OwnActionConstants.SYSTEM_ICON_IDENTIFIER)) {
-                if (clickAction.equals(OwnActionConstants.ACTION_BACK)) {
+                    || iconUri.startsWith(RadiumActionConstants.SYSTEM_ICON_IDENTIFIER)) {
+                if (clickAction.equals(RadiumActionConstants.ACTION_BACK)) {
                     mBackIcon = prepareBackIcon(d, false);
                 }
                 if (mIconResize) {
@@ -713,7 +713,7 @@ public class PieController implements BaseStatusBar.NavigationBarCallback, PieVi
         PieItem item;
 
         for (int j = 0; j < 2; j++) {
-            item = findItem(OwnActionConstants.ACTION_BACK, j);
+            item = findItem(RadiumActionConstants.ACTION_BACK, j);
             if (item != null) {
                 boolean isAlt = (hints & StatusBarManager.NAVIGATION_HINT_BACK_ALT) != 0;
                 item.setImageDrawable(isAlt ? mBackAltIcon : mBackIcon);
@@ -767,19 +767,19 @@ public class PieController implements BaseStatusBar.NavigationBarCallback, PieVi
 
         PieItem item;
         for (int j = 0; j < 2; j++) {
-            item = findItem(OwnActionConstants.ACTION_BACK, j);
+            item = findItem(RadiumActionConstants.ACTION_BACK, j);
             if (item != null) {
                 item.show(!disableBack);
             }
-            item = findItem(OwnActionConstants.ACTION_HOME, j);
+            item = findItem(RadiumActionConstants.ACTION_HOME, j);
             if (item != null) {
                 item.show(!disableHome);
                 // If the homebutton exists we can assume that the keyguard
                 // search button exists as well.
-                item = findItem(OwnActionConstants.ACTION_KEYGUARD_SEARCH, j);
+                item = findItem(RadiumActionConstants.ACTION_KEYGUARD_SEARCH, j);
                 item.show(disableHome);
             }
-            item = findItem(OwnActionConstants.ACTION_RECENTS, j);
+            item = findItem(RadiumActionConstants.ACTION_RECENTS, j);
             if (item != null) {
                 item.show(!disableRecent);
             }
@@ -843,7 +843,7 @@ public class PieController implements BaseStatusBar.NavigationBarCallback, PieVi
         if (!Action.isActionKeyEvent(type)) {
             mPieContainer.performHapticFeedback(HapticFeedbackConstants.VIRTUAL_KEY);
         }
-        if (!type.equals(OwnActionConstants.ACTION_MENU)) {
+        if (!type.equals(RadiumActionConstants.ACTION_MENU)) {
             mPieContainer.playSoundEffect(SoundEffectConstants.CLICK);
         }
         mPieContainer.sendAccessibilityEvent(AccessibilityEvent.TYPE_VIEW_CLICKED);
