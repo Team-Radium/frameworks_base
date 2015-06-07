@@ -286,4 +286,10 @@ interface IWindowManager
      */
     WindowContentFrameStats getWindowContentFrameStats(IBinder token);
 
+    /**
+     * Get current system ui visibility mode.
+     *
+     * @hide
+     */
+    int getSystemUIVisibility();
 }
