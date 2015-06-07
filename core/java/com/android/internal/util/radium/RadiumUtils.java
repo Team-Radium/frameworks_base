@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015 The OwnROM Project
+ * Copyright (C) 2015 The Team-RAdium Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
-package com.android.internal.util.own;
+package com.android.internal.util.radium;
 
 import android.content.Context;
 
-public class OwnUtils {
+public class RadiumUtils {
 
     public static boolean isNavBarDefault(Context context) {
         return context.getResources().getBoolean(
