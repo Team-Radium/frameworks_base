@@ -16,9 +16,6 @@
 -->
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
 
-    <!-- TRDS -->
-    <string name="quick_settings_trds_label">TRDS</string>
-
     <!-- Power menu -->
     <string name="quick_settings_power_menu_label">Power Menu</string>
 
