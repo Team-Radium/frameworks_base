@@ -2660,12 +2660,6 @@ public final class Settings {
         public static final String DEV_FORCE_SHOW_NAVBAR = Secure.DEV_FORCE_SHOW_NAVBAR;
 
         /**
-         * Navigation bar button color
-         * @hide
-         */
-        public static final String NAVIGATION_BAR_TINT = "navigation_bar_tint";
-
-        /**
          * Date format string
          *   mm/dd/yyyy
          *   dd/mm/yyyy
@@ -3467,7 +3461,7 @@ public final class Settings {
          */
         public static final String NAVIGATION_BAR_SHOW = "navigation_bar_show";
 
-		/**
+	/**
          * Navigation bar height when it is on protrait
          * @hide
          */
