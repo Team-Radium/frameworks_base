@@ -2660,12 +2660,6 @@ public final class Settings {
         public static final String DEV_FORCE_SHOW_NAVBAR = Secure.DEV_FORCE_SHOW_NAVBAR;
 
         /**
-         * Navigation bar button color
-         * @hide
-         */
-        public static final String NAVIGATION_BAR_TINT = "navigation_bar_tint";
-
-        /**
          * Date format string
          *   mm/dd/yyyy
          *   dd/mm/yyyy
@@ -8282,6 +8276,14 @@ public final class Settings {
         public static final String LTE_SERVICE_FORCED = "lte_service_forced";
 
         /**
+         * Whether the system auto-configure the priority of the wifi ap's or use
+         * the manual settings established by the user.
+         * <> 0 to autoconfigure, 0 to manual settings. Default is <> 0.
+         * @hide
+         */
+        public static final String WIFI_AUTO_PRIORITIES_CONFIGURATION = "wifi_auto_priority";
+
+	/**
          * Settings to backup. This is here so that it's in the same place as the settings
          * keys and easy to update.
          *
