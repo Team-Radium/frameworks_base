@@ -577,8 +577,7 @@ public class NetworkControllerImpl extends BroadcastReceiver
                         + " mMobileActivityIconId = " + getResourceName(mMobileActivityIconId)
                         + " mDataTypeIconId = " + getResourceName(mDataTypeIconId)
                         + " mNoSimIconId = " + getResourceName(mNoSimIconId));
-            }
-        } else if (action.equals(TelephonyIntents.ACTION_SIM_STATE_CHANGED)) {
+            } else if (action.equals(TelephonyIntents.ACTION_SIM_STATE_CHANGED)) {
             // Might have different subscriptions now.
             updateMobileControllers();
         } else {
