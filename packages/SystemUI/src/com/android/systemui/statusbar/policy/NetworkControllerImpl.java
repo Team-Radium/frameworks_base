@@ -569,7 +569,7 @@ public class NetworkControllerImpl extends BroadcastReceiver
                     mDataTypeIconId == TelephonyIcons.ROAMING_ICON,
                     isTypeIconWide(mDataTypeIconId),
                     mNoSimIconId);
-            if (DEBUG) {
+        } if (DEBUG) {
                 Log.d(TAG, "refreshSignalCluster - setMobileDataIndicators: "
                         + " mHasMobileDataFeature = " + String.valueOf(mHasMobileDataFeature)
                         + " mPhoneSignalIconId = " + getResourceName(mPhoneSignalIconId)
@@ -577,7 +577,8 @@ public class NetworkControllerImpl extends BroadcastReceiver
                         + " mMobileActivityIconId = " + getResourceName(mMobileActivityIconId)
                         + " mDataTypeIconId = " + getResourceName(mDataTypeIconId)
                         + " mNoSimIconId = " + getResourceName(mNoSimIconId));
-            } else if (action.equals(TelephonyIntents.ACTION_SIM_STATE_CHANGED)) {
+            } 
+        if (action.equals(TelephonyIntents.ACTION_SIM_STATE_CHANGED)) {
             // Might have different subscriptions now.
             updateMobileControllers();
         } else {
