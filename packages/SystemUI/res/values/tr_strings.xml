@@ -58,4 +58,7 @@
     <!-- Greeting -->
     <string name="radium_label">Welcome to Radium</string>
 
+    <!-- Battery Saver Dimss -->
+    <string name="battery_saver_dismiss_title">Dismiss</string>
+
 </resources>
