@@ -5226,12 +5226,6 @@ public final class Settings {
             "lock_screen_appwidget_ids";
 
         /**
-         * List of enrolled fingerprint identifiers (comma-delimited).
-         * @hide
-         */
-        public static final String USER_FINGERPRINT_IDS = "user_fingerprint_ids";
-
-        /**
          * Id of the appwidget shown on the lock screen when appwidgets are disabled.
          * @hide
          */
@@ -8501,7 +8495,13 @@ public final class Settings {
          */
         public static final String WIFI_AUTO_PRIORITIES_CONFIGURATION = "wifi_auto_priority";
 
-	/**
+        /**
+         * List of enrolled fingerprint identifiers (comma-delimited).
+         * @hide
+         */
+        public static final String USER_FINGERPRINTS = "user_fingerprints";
+
+        /**
          * Settings to backup. This is here so that it's in the same place as the settings
          * keys and easy to update.
          *
