@@ -625,8 +625,6 @@ bool BootAnimation::movie()
     if (!readFile("desc.txt", desString)) {
         return false;
     }
-
-    descMap->release();
     char const* s = desString.string();
 
     // Create and initialize an AudioPlayer if we have an audio_conf.txt file
