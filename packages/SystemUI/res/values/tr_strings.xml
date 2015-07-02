@@ -70,4 +70,7 @@
     <string name="content_setup_dismiss">Continue</string>
     <string name="toast_not_installed">App is not installed</string>
 
+    <!-- Title shown in recents popup for showing app launch in floating mode -->
+    <string name="recent_float_mode_title">Floating mode</string>
+
 </resources>
