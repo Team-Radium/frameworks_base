@@ -342,4 +342,8 @@
 
     <!-- Fingerprint default name -->
     <java-symbol type="string" name="fingerprint_default_name" />
+  
+  <!-- Hardware keys on/off option -->
+  <java-symbol type="bool" name="config_hwKeysPref" />
+
 </resources>
