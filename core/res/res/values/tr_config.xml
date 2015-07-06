@@ -1,8 +1,6 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <!--
-/* Copyright (c) 2015 The Team-Radium Project
-**
-** Copyright 2009, The Android Open Source Project
+/* Copyright 2015 Team-Radium
 **
 ** Licensed under the Apache License, Version 2.0 (the "License");
 ** you may not use this file except in compliance with the License.
@@ -22,7 +20,12 @@
      for different hardware and product builds.  Do not translate. -->
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
 
+		 
     <!-- If this is true, key chords can be used to take a screen record on the device. -->
-    <bool name="config_enableScreenrecordChord">true</bool>
+    <bool name="config_enableScreenrecordChord">true</bool>		
+
+    <!-- Hardware keys on/off option -->
+    <bool name="config_hwKeysPref">false</bool>
+
 
 </resources>

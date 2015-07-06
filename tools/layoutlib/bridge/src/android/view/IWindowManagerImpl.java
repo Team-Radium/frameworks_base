@@ -498,4 +498,15 @@ public class IWindowManagerImpl implements IWindowManager {
     @Override
     public void toggleGlobalMenu() {
     }
+
+    /* @hide */
+    @Override
+    public int getSystemUIVisibility() {
+        return 0;
+    }
+
+    @Override
+    public boolean hasPermanentMenuKey() {
+        return true;
+    }
 }
