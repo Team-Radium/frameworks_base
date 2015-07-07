@@ -4099,6 +4099,8 @@ public class PhoneStatusBar extends BaseStatusBar implements DemoMode,
         if (updateStatusBar) {
             mContext.recreateTheme();
             recreateStatusBar();
+            repositionNavigationBar();
+            checkBarModes();
         } else {
             loadDimens();
         }
