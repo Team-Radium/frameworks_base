@@ -1150,13 +1150,9 @@ public class PhoneStatusBar extends BaseStatusBar implements DemoMode,
 
         updateShowSearchHoldoff();
 
-        if (mRecreating) {
-            removeSidebarView();
-        } else {
             addAppCircleSidebar();
             addSidebarView();
             addGestureAnywhereView();
-        }
 
         if (mNavigationBarView == null) {
             mNavigationBarView =
@@ -4383,6 +4379,9 @@ public class PhoneStatusBar extends BaseStatusBar implements DemoMode,
             recreateStatusBar();
             repositionNavigationBar();
             checkBarModes();
+            addSidebarView();
+            attachPieContainer(isPieEnabled());
+
         } else {
             loadDimens();
         }
