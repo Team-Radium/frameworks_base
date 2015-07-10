@@ -2710,12 +2710,6 @@ public final class Settings {
         @Deprecated
         public static final String DEV_FORCE_SHOW_NAVBAR = Secure.DEV_FORCE_SHOW_NAVBAR;
 
-	/**
-         * Navigation bar button color
-         * @hide
-         */
-        public static final String NAVIGATION_BAR_TINT = "navigation_bar_tint";
-
         /**
          * Date format string
          *   mm/dd/yyyy
