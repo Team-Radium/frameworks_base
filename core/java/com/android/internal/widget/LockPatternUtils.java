@@ -1808,18 +1808,7 @@ public class LockPatternUtils {
                 isPattern && isLockPatternEnabled(userId) && savedPatternExists(userId)
                 || isPassword && savedPasswordExists(userId)
                 || isGesture && isLockGestureEnabled() && savedGestureExists();
-        return secure && getActiveProfileLockMode() != Profile.LockMode.DISABLE;
-    }
-
-    public int getActiveProfileLockMode() {
-        // Check device policy
-        DevicePolicyManager dpm = getDevicePolicyManager();
-        if (dpm.requireSecureKeyguard(getCurrentOrCallingUserId())) {
-            // Always enforce lock screen
-            return Profile.LockMode.DEFAULT;
-        }
-        final Profile profile = mProfileManager.getActiveProfile();
-        return profile == null ? Profile.LockMode.DEFAULT : profile.getScreenLockMode();
+        return secure;
     }
 
     /**
