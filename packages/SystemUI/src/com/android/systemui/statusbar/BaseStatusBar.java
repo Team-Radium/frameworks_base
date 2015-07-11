@@ -362,6 +362,7 @@ public abstract class BaseStatusBar extends SystemUI implements
             resolver.registerContentObserver(
                     Settings.Secure.getUriFor(Settings.Secure.SEARCH_PANEL_ENABLED),
                     false, this);
+	    resolver.registerContentObserver(
                     Settings.System.getUriFor(Settings.System.HEADS_UP_CUSTOM_VALUES),
                     false, this);
             resolver.registerContentObserver(
