@@ -3619,6 +3619,12 @@ public final class Settings {
          */
         public static final String DISPLAY_COLOR_ENHANCE = "display_color_enhance";
 
+         /**
+         * Color of the expanded status bar header background
+         * @hide
+         */
+        public static final String STATUS_BAR_EXPANDED_HEADER_BG_COLOR = "status_bar_expanded_header_bg_color";
+
         /**
          * Manual display color adjustments (RGB values as floats, separated by spaces)
          * @hide
