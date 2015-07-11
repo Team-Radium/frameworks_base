@@ -19,10 +19,12 @@ package com.android.systemui.qs;
 import android.animation.Animator;
 import android.animation.Animator.AnimatorListener;
 import android.animation.AnimatorListenerAdapter;
+import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.content.res.Resources;
+import android.database.ContentObserver;
 import android.graphics.Point;
 import android.net.Uri;
 import android.graphics.PorterDuff.Mode;
@@ -736,13 +738,6 @@ public class QSPanel extends ViewGroup {
             resolver.unregisterContentObserver(this);
         }
 
-        @Override
-        public void onChange(boolean selfChange) {
-            super.onChange(selfChange);
-            update();
-        }
-
-        @Override
         public void onChange(boolean selfChange, Uri uri) {
             update();
         }

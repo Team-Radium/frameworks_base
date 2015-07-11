@@ -517,11 +517,6 @@ public class PhoneStatusBar extends BaseStatusBar implements DemoMode,
             update();
         }
 
-        void unobserve() {
-            ContentResolver resolver = mContext.getContentResolver();
-            resolver.unregisterContentObserver(this);
-        }
-
         @Override
         public void onChange(boolean selfChange, Uri uri) {
             super.onChange(selfChange, uri);
@@ -551,13 +546,6 @@ public class PhoneStatusBar extends BaseStatusBar implements DemoMode,
                     resetHeadsUpDecayTimer();
             }
             update();
-        }
-
-        @Override
-        protected void unobserve() {
-            super.unobserve();
-            ContentResolver resolver = mContext.getContentResolver();
-            resolver.unregisterContentObserver(this);
         }
 
         @Override

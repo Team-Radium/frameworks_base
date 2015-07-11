@@ -357,8 +357,8 @@ public class NavigationBarView extends LinearLayout implements BaseStatusBar.Nav
     private void getIcons(Resources res) {
         mBackIcon = new BackButtonDrawable(res.getDrawable(R.drawable.ic_sysbar_back));
         mBackLandIcon = new BackButtonDrawable(res.getDrawable(R.drawable.ic_sysbar_back_land));
-        mBackAltIcon = res.getDrawable(R.drawable.ic_sysbar_back_ime);
-        mBackAltLandIcon = res.getDrawable(R.drawable.ic_sysbar_back_ime_land);
+        mBackAltIcon = new BackButtonDrawable(res.getDrawable(R.drawable.ic_sysbar_back_ime));
+        mBackAltLandIcon = new BackButtonDrawable(res.getDrawable(R.drawable.ic_sysbar_back_ime_land));
         mRecentIcon = res.getDrawable(R.drawable.ic_sysbar_recent);
         mRecentLandIcon = res.getDrawable(R.drawable.ic_sysbar_recent_land);
         mHomeIcon = res.getDrawable(R.drawable.ic_sysbar_home);

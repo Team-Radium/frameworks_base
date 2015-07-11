@@ -194,6 +194,7 @@ public abstract class BaseStatusBar extends SystemUI implements
 
     // Search panel
     protected SearchPanelView mSearchPanelView;
+    private boolean mSearchPanelViewEnabled;
 
     protected int mCurrentUserId = 0;
     final protected SparseArray<UserInfo> mCurrentProfiles = new SparseArray<UserInfo>();
@@ -2311,9 +2312,9 @@ public abstract class BaseStatusBar extends SystemUI implements
         boolean accessibilityForcesLaunch = isFullscreen
                 && mAccessibilityManager.isTouchExplorationEnabled();
 
-        final KeyguardTouchDelegate keyguard = KeyguardTouchDelegate.getInstance(mContext);
-        boolean keyguardIsShowing = keyguard.isShowingAndNotOccluded()
-                && keyguard.isInputRestricted();
+        boolean keyguardIsShowing = (mStatusBarKeyguardViewManager.isShowing()
+                && !mStatusBarKeyguardViewManager.isOccluded())
+                && mStatusBarKeyguardViewManager.isInputRestricted();
 
         boolean interrupt = (isFullscreen || (isHighPriority && (isNoisy || hasTicker))
                 || asHeadsUp == Notification.HEADS_UP_REQUESTED)
@@ -2381,10 +2382,6 @@ public abstract class BaseStatusBar extends SystemUI implements
                 mContext.getSystemService(Context.INPUT_METHOD_SERVICE);
 
         return inputMethodManager != null ? inputMethodManager.isImeShowing() : false;
-    }
-
-    public boolean inKeyguardRestrictedInputMode() {
-        return KeyguardTouchDelegate.getInstance(mContext).isInputRestricted();
     }
 
     public void setInteracting(int barWindow, boolean interacting) {
