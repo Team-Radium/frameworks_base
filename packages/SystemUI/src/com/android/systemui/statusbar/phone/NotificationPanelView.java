@@ -1462,15 +1462,6 @@ public class NotificationPanelView extends PanelView implements
                 t = (expandedHeight - panelHeightQsCollapsed)
                         / (panelHeightQsExpanded - panelHeightQsCollapsed);
             }
-
-            // set quick settings panel view max expansion if it does
-            // not reach the notification position when keyguard showing
-            if (getResources().getBoolean(R.bool.config_showTaskManagerSwitcher)
-                    && (expandedHeight <= panelHeightQsCollapsed
-                    || panelHeightQsExpanded <= panelHeightQsCollapsed)) {
-                t = 1f;
-            }
-
             setQsExpansion(mQsMinExpansionHeight
                     + t * (getTempQsMaxExpansion() - mQsMinExpansionHeight));
         }
