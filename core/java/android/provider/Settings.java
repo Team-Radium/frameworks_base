@@ -3366,6 +3366,13 @@ public final class Settings {
         public static final String KEY_HOME_DOUBLE_TAP_ACTION = "key_home_double_tap_action";
 
         /**
+         * Whether to listen on the entire screen for touches to un-dim
+         * the buttons instead of just listening on the navbar
+         * @hide
+         */
+        public static final String DIM_NAV_BUTTONS_TOUCH_ANYWHERE = "dim_nav_buttons_touch_anywhere";
+
+        /**
          * Action to perform when the menu key is pressed. (Default is 1)
          * (See KEY_HOME_LONG_PRESS_ACTION for valid values)
          * @hide
