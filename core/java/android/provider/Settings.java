@@ -3514,6 +3514,12 @@ public final class Settings {
          */
         public static final String DOUBLE_TAP_SLEEP_ANYWHERE = "double_tap_sleep_anywhere";
 
+         /**
+         * Color of the expanded status bar header background
+         * @hide
+         */
+        public static final String STATUS_BAR_EXPANDED_HEADER_BG_COLOR = "status_bar_expanded_header_bg_color";
+
         /**
          * Boolean value on whether to show weather in the statusbar
          * @hide

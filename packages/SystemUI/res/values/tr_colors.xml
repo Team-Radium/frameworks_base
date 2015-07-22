@@ -42,6 +42,10 @@
     <color name="task_item_background">#0000</color>
     <color name="task_item_text">#ffffffff</color>
 
+    <!-- Floating action button -->
+    <color name="fab_color">#ff009688</color>
+    <color name="floating_action_button_icon_color">#ffffff</color>
+
     <!-- Recents -->
     <color name="recents_empty_dark_color">#ff4d4d4d</color>
     <color name="recents_empty_light_color">#ffb3b3b3</color>
