@@ -260,6 +260,7 @@ public class SignalClusterView
     @Override
     public void setMobileDataIndicators(boolean visible, int strengthIcon, int inetCondition,
             int activityIcon, int typeIcon, String contentDescription,
+<<<<<<< HEAD
             String typeContentDescription, boolean roaming,
             boolean isTypeIconWide, int noSimIcon) {
         mMobileVisible = visible;
@@ -281,6 +282,23 @@ public class SignalClusterView
             mDataActivityId = activityIcon;
             mDataVisible = (activityIcon != 0) ? true : false;
         }
+=======
+            String typeContentDescription, boolean isTypeIconWide,
+            boolean showRoamingIndicator, int subId) {
+        PhoneState state = getState(subId);
+        if (state == null) {
+            return;
+        }
+
+        state.mMobileVisible = visible;
+        state.mMobileStrengthId = strengthIcon;
+        state.mMobileActivityId = activityIcon;
+        state.mMobileTypeId = typeIcon;
+        state.mMobileDescription = contentDescription;
+        state.mMobileTypeDescription = typeContentDescription;
+        state.mIsMobileTypeIconWide = isTypeIconWide;
+        state.mShowRoamingIndicator = showRoamingIndicator;
+>>>>>>> 5.1
 
         apply();
     }
@@ -303,13 +321,13 @@ public class SignalClusterView
         }
     }
 
-    private PhoneState getOrInflateState(int subId) {
+    private PhoneState getState(int subId) {
         for (PhoneState state : mPhoneStates) {
             if (state.mSubId == subId) {
                 return state;
             }
         }
-        return inflatePhoneState(subId);
+        return null;
     }
         updateSettings();
     }

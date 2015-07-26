@@ -61,7 +61,7 @@ public class ViewConfiguration {
      * Defines the default duration in milliseconds before a press turns into
      * a long press
      */
-    private static final int DEFAULT_LONG_PRESS_TIMEOUT = 500;
+    private static final int DEFAULT_LONG_PRESS_TIMEOUT = 250;
 
     /**
      * Defines the time between successive key repeats in milliseconds.
@@ -73,7 +73,7 @@ public class ViewConfiguration {
      * appropriate button to bring up the global actions dialog (power off,
      * lock screen, etc).
      */
-    private static final int GLOBAL_ACTIONS_KEY_TIMEOUT = 500;
+    private static final int GLOBAL_ACTIONS_KEY_TIMEOUT = 250;
 
     /**
      * Defines the duration in milliseconds we will wait to see if a touch event
@@ -87,7 +87,7 @@ public class ViewConfiguration {
      * is a jump tap. If the user does not complete the jump tap within this interval, it is
      * considered to be a tap.
      */
-    private static final int JUMP_TAP_TIMEOUT = 500;
+    private static final int JUMP_TAP_TIMEOUT = 250;
 
     /**
      * Defines the duration in milliseconds between the first tap's up event and
@@ -121,12 +121,12 @@ public class ViewConfiguration {
      * Defines the duration in milliseconds we want to display zoom controls in response
      * to a user panning within an application.
      */
-    private static final int ZOOM_CONTROLS_TIMEOUT = 3000;
+    private static final int ZOOM_CONTROLS_TIMEOUT = 1500;
 
     /**
      * Inset in dips to look for touchable content when the user touches the edge of the screen
      */
-    private static final int EDGE_SLOP = 12;
+    private static final int EDGE_SLOP = 6;
 
     /**
      * Distance a touch can wander before we think the user is scrolling in dips.
@@ -180,7 +180,7 @@ public class ViewConfiguration {
     /**
      * Maximum velocity to initiate a fling, as measured in dips per second
      */
-    private static final int MAXIMUM_FLING_VELOCITY = 8000;
+    private static final int MAXIMUM_FLING_VELOCITY = 16000;
 
     /**
      * Delay before dispatching a recurring accessibility event in milliseconds.
@@ -200,7 +200,7 @@ public class ViewConfiguration {
     /**
      * The coefficient of friction applied to flings/scrolls.
      */
-    private static final float SCROLL_FRICTION = 0.015f;
+    private static final float SCROLL_FRICTION = 0.007f;
 
     /**
      * Max distance in dips to overscroll for edge effects
@@ -220,6 +220,7 @@ public class ViewConfiguration {
     private static final int HAS_PERMANENT_MENU_KEY_TRUE = 1;
     private static final int HAS_PERMANENT_MENU_KEY_FALSE = 2;
 
+	private Context mContext;
     private final int mEdgeSlop;
     private final int mFadingEdgeLength;
     private final int mMinimumFlingVelocity;
@@ -276,6 +277,7 @@ public class ViewConfiguration {
      * @see android.util.DisplayMetrics
      */
     private ViewConfiguration(Context context) {
+		mContext = context;
         final Resources res = context.getResources();
         final DisplayMetrics metrics = res.getDisplayMetrics();
         final Configuration config = res.getConfiguration();
@@ -744,7 +746,29 @@ public class ViewConfiguration {
      * @return true if a permanent menu key is present, false otherwise.
      */
     public boolean hasPermanentMenuKey() {
-        return sHasPermanentMenuKey;
+        // Check if navbar is on to set overflow menu button
+        boolean mHasNavigationBar = Settings.System.getInt(mContext.getContentResolver(),
+                    Settings.System.NAVIGATION_BAR_SHOW, 0) == 1;
+        // Check if hw keys are on to set overflow menu button
+        boolean mHasHwKeysEnabled = Settings.System.getInt(mContext.getContentResolver(),
+                    Settings.System.ENABLE_HW_KEYS, 0) == 1;
+
+        IWindowManager wm = WindowManagerGlobal.getWindowManagerService();
+        // Report no menu key if device has soft buttons
+        try {
+            if (wm.hasNavigationBar() || mHasNavigationBar || !mHasHwKeysEnabled) {
+                return false;
+            }
+        } catch (RemoteException ex) {
+            // do nothing, continue trying to guess
+        }
+
+        // Report menu key presence based on hardware key rebinding
+        try {
+            return wm.hasPermanentMenuKey();
+        } catch (RemoteException ex) {
+            return true;
+        }
     }
 
     /**

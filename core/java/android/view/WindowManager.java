@@ -555,6 +555,14 @@ public interface WindowManager extends ViewManager {
         public static final int TYPE_ACCESSIBILITY_OVERLAY = FIRST_SYSTEM_WINDOW+32;
 
         /**
+         * Window type: Recents. Same layer as {@link #TYPE_SYSTEM_DIALOG} but only appears on
+         * one user's screen.
+         * In multiuser systems shows on all users' windows.
+         * @hide
+         */
+        public static final int TYPE_RECENTS_OVERLAY = FIRST_SYSTEM_WINDOW+33;
+
+        /**
          * End of types of system windows.
          */
         public static final int LAST_SYSTEM_WINDOW      = 2999;
@@ -2021,7 +2029,8 @@ public interface WindowManager extends ViewManager {
             if (userActivityTimeout >= 0) {
                 sb.append(" userActivityTimeout=").append(userActivityTimeout);
             }
-            if (!surfaceInsets.equals(Insets.NONE)) {
+            if (surfaceInsets.left != 0 || surfaceInsets.top != 0 || surfaceInsets.right != 0 ||
+                    surfaceInsets.bottom != 0) {
                 sb.append(" surfaceInsets=").append(surfaceInsets);
             }
             if (needsMenuKey != NEEDS_MENU_UNSET) {

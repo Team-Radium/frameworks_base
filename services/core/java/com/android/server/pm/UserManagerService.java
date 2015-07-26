@@ -70,6 +70,7 @@ import java.io.PrintWriter;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -537,6 +538,28 @@ public class UserManagerService extends IUserManager.Stub {
      * Check if we've hit the limit of how many users can be created.
      */
     private boolean isUserLimitReachedLocked() {
+        return getAliveUsersExcludingGuestsCountLocked() >= UserManager.getMaxSupportedUsers();
+    }
+
+    @Override
+    public boolean canAddMoreManagedProfiles() {
+        checkManageUsersPermission("check if more managed profiles can be added.");
+        if (ActivityManager.isLowRamDeviceStatic()) {
+            return false;
+        }
+        synchronized(mPackagesLock) {
+            // Limit number of managed profiles that can be created
+            if (numberOfUsersOfTypeLocked(UserInfo.FLAG_MANAGED_PROFILE, true)
+                    >= MAX_MANAGED_PROFILES) {
+                return false;
+            }
+            int usersCount = getAliveUsersExcludingGuestsCountLocked();
+            // We allow creating a managed profile in the special case where there is only one user.
+            return usersCount == 1 || usersCount < UserManager.getMaxSupportedUsers();
+        }
+    }
+
+    private int getAliveUsersExcludingGuestsCountLocked() {
         int aliveUserCount = 0;
         final int totalUserCount = mUsers.size();
         // Skip over users being removed
@@ -547,7 +570,7 @@ public class UserManagerService extends IUserManager.Stub {
                 aliveUserCount++;
             }
         }
-        return aliveUserCount >= UserManager.getMaxSupportedUsers();
+        return aliveUserCount;
     }
 
     /**
@@ -618,7 +641,7 @@ public class UserManagerService extends IUserManager.Stub {
         try {
             fis = userListFile.openRead();
             XmlPullParser parser = Xml.newPullParser();
-            parser.setInput(fis, null);
+            parser.setInput(fis, StandardCharsets.UTF_8.name());
             int type;
             while ((type = parser.next()) != XmlPullParser.START_TAG
                     && type != XmlPullParser.END_DOCUMENT) {
@@ -764,7 +787,7 @@ public class UserManagerService extends IUserManager.Stub {
 
             // XmlSerializer serializer = XmlUtils.serializerInstance();
             final XmlSerializer serializer = new FastXmlSerializer();
-            serializer.setOutput(bos, "utf-8");
+            serializer.setOutput(bos, StandardCharsets.UTF_8.name());
             serializer.startDocument(null, true);
             serializer.setFeature("http://xmlpull.org/v1/doc/features.html#indent-output", true);
 
@@ -838,7 +861,7 @@ public class UserManagerService extends IUserManager.Stub {
 
             // XmlSerializer serializer = XmlUtils.serializerInstance();
             final XmlSerializer serializer = new FastXmlSerializer();
-            serializer.setOutput(bos, "utf-8");
+            serializer.setOutput(bos, StandardCharsets.UTF_8.name());
             serializer.startDocument(null, true);
             serializer.setFeature("http://xmlpull.org/v1/doc/features.html#indent-output", true);
 
@@ -922,7 +945,7 @@ public class UserManagerService extends IUserManager.Stub {
                     new AtomicFile(new File(mUsersDir, Integer.toString(id) + XML_SUFFIX));
             fis = userFile.openRead();
             XmlPullParser parser = Xml.newPullParser();
-            parser.setInput(fis, null);
+            parser.setInput(fis, StandardCharsets.UTF_8.name());
             int type;
             while ((type = parser.next()) != XmlPullParser.START_TAG
                     && type != XmlPullParser.END_DOCUMENT) {
@@ -1152,7 +1175,11 @@ public class UserManagerService extends IUserManager.Stub {
             Log.w(LOG_TAG, "Cannot add user. DISALLOW_ADD_USER is enabled.");
             return null;
         }
+        if (ActivityManager.isLowRamDeviceStatic()) {
+            return null;
+        }
         final boolean isGuest = (flags & UserInfo.FLAG_GUEST) != 0;
+        final boolean isManagedProfile = (flags & UserInfo.FLAG_MANAGED_PROFILE) != 0;
         final long ident = Binder.clearCallingIdentity();
         UserInfo userInfo = null;
         try {
@@ -1163,19 +1190,16 @@ public class UserManagerService extends IUserManager.Stub {
                         parent = getUserInfoLocked(parentId);
                         if (parent == null) return null;
                     }
-                    // If we're not adding a guest user and the limit has been reached,
-                    // cannot add a user.
-                    if (!isGuest && isUserLimitReachedLocked()) {
+                    if (isManagedProfile && !canAddMoreManagedProfiles()) {
+                        return null;
+                    }
+                    if (!isGuest && !isManagedProfile && isUserLimitReachedLocked()) {
+                        // If we're not adding a guest user or a managed profile and the limit has
+                        // been reached, cannot add a user.
                         return null;
                     }
                     // If we're adding a guest and there already exists one, bail.
                     if (isGuest && findCurrentGuestUserLocked() != null) {
-                        return null;
-                    }
-                    // Limit number of managed profiles that can be created
-                    if ((flags & UserInfo.FLAG_MANAGED_PROFILE) != 0
-                            && numberOfUsersOfTypeLocked(UserInfo.FLAG_MANAGED_PROFILE, true)
-                                >= MAX_MANAGED_PROFILES) {
                         return null;
                     }
                     int userId = getNextAvailableIdLocked();
@@ -1663,7 +1687,7 @@ public class UserManagerService extends IUserManager.Stub {
                             packageToRestrictionsFileName(packageName)));
             fis = restrictionsFile.openRead();
             XmlPullParser parser = Xml.newPullParser();
-            parser.setInput(fis, null);
+            parser.setInput(fis, StandardCharsets.UTF_8.name());
             int type;
             while ((type = parser.next()) != XmlPullParser.START_TAG
                     && type != XmlPullParser.END_DOCUMENT) {
@@ -1731,7 +1755,7 @@ public class UserManagerService extends IUserManager.Stub {
 
             // XmlSerializer serializer = XmlUtils.serializerInstance();
             final XmlSerializer serializer = new FastXmlSerializer();
-            serializer.setOutput(bos, "utf-8");
+            serializer.setOutput(bos, StandardCharsets.UTF_8.name());
             serializer.startDocument(null, true);
             serializer.setFeature("http://xmlpull.org/v1/doc/features.html#indent-output", true);
 

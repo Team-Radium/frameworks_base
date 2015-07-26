@@ -231,6 +231,7 @@ import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.lang.ref.WeakReference;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -387,6 +388,10 @@ public final class ActivityManagerService extends ActivityManagerNative
 
     // Delay in notifying task stack change listeners (in millis)
     static final int NOTIFY_TASK_STACK_CHANGE_LISTENERS_DELAY = 1000;
+
+    // Necessary ApplicationInfo flags to mark an app as persistent
+    private static final int PERSISTENT_MASK =
+            ApplicationInfo.FLAG_SYSTEM|ApplicationInfo.FLAG_PERSISTENT;
 
     /** All system services */
     SystemServiceManager mSystemServiceManager;
@@ -4200,6 +4205,7 @@ public final class ActivityManagerService extends ActivityManagerNative
         if (task.inRecents) {
             int taskIndex = mRecentTasks.indexOf(task);
             if (taskIndex >= 0) {
+                trimRecentBitmaps();
                 if (!isAffiliated) {
                     // Simple case: this is not an affiliated task, so we just move it to the front.
                     mRecentTasks.remove(taskIndex);
@@ -4289,6 +4295,16 @@ public final class ActivityManagerService extends ActivityManagerNative
         if (needAffiliationFix) {
             if (DEBUG_RECENTS) Slog.d(TAG, "addRecent: regrouping affiliations");
             cleanupRecentTasksLocked(task.userId);
+        }
+    }
+
+    void trimRecentBitmaps() {
+        int N = mRecentTasks.size();
+        for (int i = 0; i < N; i++) {
+            final TaskRecord tr = mRecentTasks.get(i);
+            if (i > MAX_RECENT_BITMAPS) {
+                tr.freeLastThumbnail();
+            }
         }
     }
 
@@ -7939,7 +7955,7 @@ public final class ActivityManagerService extends ActivityManagerNative
             fos = mGrantFile.startWrite();
 
             XmlSerializer out = new FastXmlSerializer();
-            out.setOutput(fos, "utf-8");
+            out.setOutput(fos, StandardCharsets.UTF_8.name());
             out.startDocument(null, true);
             out.startTag(null, TAG_URI_GRANTS);
             for (UriPermission.Snapshot perm : persist) {
@@ -7974,7 +7990,7 @@ public final class ActivityManagerService extends ActivityManagerNative
         try {
             fis = mGrantFile.openRead();
             final XmlPullParser in = Xml.newPullParser();
-            in.setInput(fis, null);
+            in.setInput(fis, StandardCharsets.UTF_8.name());
 
             int type;
             while ((type = in.next()) != END_DOCUMENT) {
@@ -8424,7 +8440,11 @@ public final class ActivityManagerService extends ActivityManagerNative
                     }
 
                     res.add(rti);
-                    maxNum--;
+                    if ((tr.intent.getFlags() & Intent.FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS) == 0
+                            || (flags & ActivityManager.RECENT_DO_NOT_COUNT_EXCLUDED) == 0
+                            || i == 0) {
+                        maxNum--;
+                    }
                 }
             }
             return res;
@@ -8974,6 +8994,23 @@ public final class ActivityManagerService extends ActivityManagerNative
         }
     }
 
+    public IBinder getActivityForTask(int task, boolean onlyRoot) {
+        final ActivityStack mainStack = mStackSupervisor.getFocusedStack();
+        synchronized(this) {
+            ArrayList<ActivityStack> stacks = mStackSupervisor.getStacks();
+            for (ActivityStack stack : stacks) {
+                TaskRecord r = stack.taskForIdLocked(task);
+
+                if (r != null && r.getTopActivity() != null) {
+                    return r.getTopActivity().appToken;
+                } else {
+                    return null;
+                }
+            }
+        }
+        return null;
+    }
+    
     private boolean isLockTaskAuthorized(String pkg) {
         final DevicePolicyManager dpm = (DevicePolicyManager)
                 mContext.getSystemService(Context.DEVICE_POLICY_SERVICE);
@@ -10091,10 +10128,10 @@ public final class ActivityManagerService extends ActivityManagerNative
         String proc = customProcess != null ? customProcess : info.processName;
         BatteryStatsImpl.Uid.Proc ps = null;
         BatteryStatsImpl stats = mBatteryStatsService.getActiveStatistics();
+        final int userId = UserHandle.getUserId(info.uid);
         int uid = info.uid;
         if (isolated) {
             if (isolatedUid == 0) {
-                int userId = UserHandle.getUserId(uid);
                 int stepsLeft = Process.LAST_ISOLATED_UID - Process.FIRST_ISOLATED_UID + 1;
                 while (true) {
                     if (mNextIsolatedProcessUid < Process.FIRST_ISOLATED_UID
@@ -10118,7 +10155,13 @@ public final class ActivityManagerService extends ActivityManagerNative
                 uid = isolatedUid;
             }
         }
-        return new ProcessRecord(stats, info, proc, uid);
+        final ProcessRecord r = new ProcessRecord(stats, info, proc, uid);
+        if (!mBooted && !mBooting
+                && userId == UserHandle.USER_OWNER
+                && (info.flags & PERSISTENT_MASK) == PERSISTENT_MASK) {
+            r.persistent = true;
+        }
+        return r;
     }
 
     final ProcessRecord addAppLocked(ApplicationInfo info, boolean isolated,
@@ -10150,8 +10193,7 @@ public final class ActivityManagerService extends ActivityManagerNative
                     + info.packageName + ": " + e);
         }
 
-        if ((info.flags&(ApplicationInfo.FLAG_SYSTEM|ApplicationInfo.FLAG_PERSISTENT))
-                == (ApplicationInfo.FLAG_SYSTEM|ApplicationInfo.FLAG_PERSISTENT)) {
+        if ((info.flags & PERSISTENT_MASK) == PERSISTENT_MASK) {
             app.persistent = true;
 
             // The Adj score defines an order of processes to be killed.
@@ -10542,6 +10584,23 @@ public final class ActivityManagerService extends ActivityManagerNative
         synchronized (this) {
             mController = controller;
             Watchdog.getInstance().setActivityController(controller);
+
+            // linkToDeath to ensure ActivityManager.isUserAMonkey returns correct status.
+            if (controller != null) {
+
+                final IBinder.DeathRecipient death = new DeathRecipient() {
+                    @Override
+                    public void binderDied() {
+                        setActivityController(null);
+                    }
+                };
+
+                try {
+                    controller.asBinder().linkToDeath(death, 0);
+                } catch (RemoteException e) {
+                    Slog.w(TAG, "given controller IBinder is already dead.");
+                }
+            }
         }
     }
 
@@ -10651,9 +10710,15 @@ public final class ActivityManagerService extends ActivityManagerNative
                     return true;
                 }
             }
+            final int anrPid = proc.pid;
             mHandler.post(new Runnable() {
                 @Override
                 public void run() {
+                    if (anrPid != proc.pid) {
+                        Slog.i(TAG, "Ignoring stale ANR (occurred in " + anrPid +
+                                    ", but current pid is " + proc.pid + ")");
+                        return;
+                    }
                     appNotResponding(proc, activity, parent, aboveSystem, annotation);
                 }
             });

@@ -77,6 +77,8 @@ public class Allocation extends BaseObj {
             new HashMap<Long, Allocation>();
     OnBufferAvailableListener mBufferNotifier;
 
+    private Surface mGetSurfaceSurface = null;
+
     private Element.DataType validateObjectIsPrimitiveArray(Object d, boolean checkType) {
         final Class c = d.getClass();
         if (!c.isArray()) {
@@ -1007,6 +1009,7 @@ public class Allocation extends BaseObj {
                               mSelectedLOD, mSelectedFace.mID,
                               count, 1, data.getID(mRS), dataOff, 0,
                               data.mSelectedLOD, data.mSelectedFace.mID);
+        Trace.traceEnd(RenderScript.TRACE_TAG);
     }
 
     private void validate2DRange(int xoff, int yoff, int w, int h) {
@@ -1152,19 +1155,22 @@ public class Allocation extends BaseObj {
      * @param data the Bitmap to be copied
      */
     public void copy2DRangeFrom(int xoff, int yoff, Bitmap data) {
-        Trace.traceBegin(RenderScript.TRACE_TAG, "copy2DRangeFrom");
-        mRS.validate();
-        if (data.getConfig() == null) {
-            Bitmap newBitmap = Bitmap.createBitmap(data.getWidth(), data.getHeight(), Bitmap.Config.ARGB_8888);
-            Canvas c = new Canvas(newBitmap);
-            c.drawBitmap(data, 0, 0, null);
-            copy2DRangeFrom(xoff, yoff, newBitmap);
-            return;
+        try {
+            Trace.traceBegin(RenderScript.TRACE_TAG, "copy2DRangeFrom");
+            mRS.validate();
+            if (data.getConfig() == null) {
+                Bitmap newBitmap = Bitmap.createBitmap(data.getWidth(), data.getHeight(), Bitmap.Config.ARGB_8888);
+                Canvas c = new Canvas(newBitmap);
+                c.drawBitmap(data, 0, 0, null);
+                copy2DRangeFrom(xoff, yoff, newBitmap);
+                return;
+            }
+            validateBitmapFormat(data);
+            validate2DRange(xoff, yoff, data.getWidth(), data.getHeight());
+            mRS.nAllocationData2D(getIDSafe(), xoff, yoff, mSelectedLOD, mSelectedFace.mID, data);
+        } finally {
+            Trace.traceEnd(RenderScript.TRACE_TAG);
         }
-        validateBitmapFormat(data);
-        validate2DRange(xoff, yoff, data.getWidth(), data.getHeight());
-        mRS.nAllocationData2D(getIDSafe(), xoff, yoff, mSelectedLOD, mSelectedFace.mID, data);
-        Trace.traceEnd(RenderScript.TRACE_TAG);
     }
 
     private void validate3DRange(int xoff, int yoff, int zoff, int w, int h, int d) {
@@ -1559,7 +1565,12 @@ public class Allocation extends BaseObj {
         if ((mUsage & USAGE_IO_INPUT) == 0) {
             throw new RSInvalidStateException("Allocation is not a surface texture.");
         }
-        return mRS.nAllocationGetSurface(getID(mRS));
+
+        if (mGetSurfaceSurface == null) {
+            mGetSurfaceSurface = mRS.nAllocationGetSurface(getID(mRS));
+        }
+
+        return mGetSurfaceSurface;
     }
 
     /**

@@ -946,6 +946,26 @@ public class MediaPlayer implements SubtitleController.Listener
     }
 
     /**
+     * Gets the current ringtone, supports MSIM
+     *
+     * @param context the Context to use when resolving the Uri
+     * @param ringtoneType the type of the tone
+     * @param uri the Content URI of the data you want
+     * {@hide}
+     */
+    public Uri getCurrentRingtoneUriByType(Context context, int ringtoneType, Uri uri) {
+        Uri soundUri = null;
+        if (ringtoneType == RingtoneManager.TYPE_RINGTONE) {
+            soundUri = RingtoneManager.getActualRingtoneUriBySubId(context,
+                    RingtoneManager.getDefaultRingtoneSubIdByUri(uri));
+        } else {
+            soundUri = RingtoneManager.getActualDefaultRingtoneUri(context,
+                    ringtoneType);
+        }
+        return soundUri;
+    }
+
+    /**
      * Sets the data source as a content Uri.
      *
      * @param context the Context to use when resolving the Uri
@@ -978,8 +998,7 @@ public class MediaPlayer implements SubtitleController.Listener
         } else if (ContentResolver.SCHEME_CONTENT.equals(scheme)
                 && Settings.AUTHORITY.equals(uri.getAuthority())) {
             // Redirect ringtones to go directly to underlying provider
-            uri = RingtoneManager.getActualDefaultRingtoneUri(context,
-                    RingtoneManager.getDefaultType(uri));
+            uri = getCurrentRingtoneUriByType(context, RingtoneManager.getDefaultType(uri), uri);
             if (uri == null) {
                 throw new FileNotFoundException("Failed to resolve default ringtone");
             }
@@ -1465,7 +1484,6 @@ public class MediaPlayer implements SubtitleController.Listener
      */
     public void release() {
         stayAwake(false);
-        updateSurfaceScreenOn();
         mOnPreparedListener = null;
         mOnBufferingUpdateListener = null;
         mOnCompletionListener = null;
@@ -2522,6 +2540,7 @@ public class MediaPlayer implements SubtitleController.Listener
                 Log.w(TAG, "mediaplayer went away with unhandled events");
                 return;
             }
+            try {
             switch(msg.what) {
             case MEDIA_PREPARED:
                 scanInternalSubtitleTracks();
@@ -2638,6 +2657,13 @@ public class MediaPlayer implements SubtitleController.Listener
             default:
                 Log.e(TAG, "Unknown message type " + msg.what);
                 return;
+            }
+            } catch (NullPointerException e) {
+                /**
+                 * We may get an NPE even with the null checks above due
+                 * to threading issues.  Just ignore it.
+                 */
+                Log.e(TAG, "Unhandled NPE from message type " + msg.what);
             }
         }
     }

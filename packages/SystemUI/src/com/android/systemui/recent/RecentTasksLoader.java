@@ -300,11 +300,11 @@ public class RecentTasksLoader implements View.OnTouchListener {
         }
 
         if (mTaskLoader != null) {
-            mTaskLoader.cancel(false);
+            mTaskLoader.cancel(true);
             mTaskLoader = null;
         }
         if (mThumbnailLoader != null) {
-            mThumbnailLoader.cancel(false);
+            mThumbnailLoader.cancel(true);
             mThumbnailLoader = null;
         }
         mLoadedTasks = null;
@@ -368,10 +368,6 @@ public class RecentTasksLoader implements View.OnTouchListener {
                     mFirstTaskLoaded = true;
                     return mFirstTask;
                 }
-            }
-            try {
-                Thread.sleep(3);
-            } catch (InterruptedException e) {
             }
         }
     }
@@ -454,12 +450,15 @@ public class RecentTasksLoader implements View.OnTouchListener {
 
                 final List<ActivityManager.RecentTaskInfo> recentTasks =
                         am.getRecentTasks(MAX_TASKS, ActivityManager.RECENT_IGNORE_UNAVAILABLE
-                        | ActivityManager.RECENT_INCLUDE_PROFILES);
+                                | ActivityManager.RECENT_INCLUDE_PROFILES
+                                | ActivityManager.RECENT_WITH_EXCLUDED
+                                | ActivityManager.RECENT_DO_NOT_COUNT_EXCLUDED);
                 int numTasks = recentTasks.size();
                 ActivityInfo homeInfo = new Intent(Intent.ACTION_MAIN)
                         .addCategory(Intent.CATEGORY_HOME).resolveActivityInfo(pm, 0);
 
                 boolean firstScreenful = true;
+                boolean loadOneExcluded = true;
                 ArrayList<TaskDescription> tasks = new ArrayList<TaskDescription>();
 
                 // skip the first task - assume it's either the home screen or the current activity.
@@ -477,6 +476,7 @@ public class RecentTasksLoader implements View.OnTouchListener {
 
                     // Don't load the current home activity.
                     if (isCurrentHomeActivity(intent.getComponent(), homeInfo)) {
+                        loadOneExcluded = false;
                         continue;
                     }
 
@@ -484,6 +484,13 @@ public class RecentTasksLoader implements View.OnTouchListener {
                     if (intent.getComponent().getPackageName().equals(mContext.getPackageName())) {
                         continue;
                     }
+
+                    if (!loadOneExcluded && (recentInfo.baseIntent.getFlags()
+                            & Intent.FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS) != 0) {
+                        continue;
+                    }
+
+                    loadOneExcluded = false;
 
                     TaskDescription item = createTaskDescription(recentInfo.id,
                             recentInfo.persistentId, recentInfo.baseIntent,
@@ -496,6 +503,9 @@ public class RecentTasksLoader implements View.OnTouchListener {
                                 tasksWaitingForThumbnails.put(item);
                                 break;
                             } catch (InterruptedException e) {
+                                if (isCancelled()) {
+                                    return null;
+                                }
                             }
                         }
                         tasks.add(item);
@@ -522,6 +532,9 @@ public class RecentTasksLoader implements View.OnTouchListener {
                         tasksWaitingForThumbnails.put(new TaskDescription());
                         break;
                     } catch (InterruptedException e) {
+                        if (isCancelled()) {
+                            return null;
+                        }
                     }
                 }
 
@@ -566,6 +579,9 @@ public class RecentTasksLoader implements View.OnTouchListener {
                         try {
                             td = tasksWaitingForThumbnails.take();
                         } catch (InterruptedException e) {
+                            if (isCancelled()) {
+                                return null;
+                            }
                         }
                     }
                     if (td.isNull()) { // end sentinel

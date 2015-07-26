@@ -29,16 +29,22 @@ import android.widget.TextView;
 
 import com.android.systemui.cm.UserContentObserver;
 import com.android.systemui.statusbar.policy.BatteryController;
+import com.android.systemui.statusbar.policy.BatteryStateRegistar;
 
 public class BatteryLevelTextView extends TextView implements
         BatteryController.BatteryStateChangeCallback{
 
+<<<<<<< HEAD
     private static final String STATUS_BAR_BATTERY_STATUS_STYLE =
             "status_bar_battery_status_style";
     private static final String STATUS_BAR_BATTERY_STATUS_PERCENT_STYLE =
             "status_bar_battery_status_percent_style";
 
     private BatteryController mBatteryController;
+=======
+    private BatteryStateRegistar mBatteryStateRegistar;
+    private boolean mBatteryPresent;
+>>>>>>> 5.1
     private boolean mBatteryCharging;
     private boolean mShow;
     private boolean mForceShow;
@@ -89,10 +95,10 @@ public class BatteryLevelTextView extends TextView implements
         updateVisibility();
     }
 
-    public void setBatteryController(BatteryController batteryController) {
-        mBatteryController = batteryController;
+    public void setBatteryStateRegistar(BatteryStateRegistar batteryStateRegistar) {
+        mBatteryStateRegistar = batteryStateRegistar;
         if (mAttached) {
-            mBatteryController.addStateChangedCallback(this);
+            mBatteryStateRegistar.addStateChangedCallback(this);
         }
     }
 
@@ -112,12 +118,20 @@ public class BatteryLevelTextView extends TextView implements
      }
 
     @Override
-    public void onBatteryLevelChanged(int level, boolean pluggedIn, boolean charging) {
+    public void onBatteryLevelChanged(boolean present, int level, boolean pluggedIn,
+            boolean charging) {
         setText(getResources().getString(R.string.battery_level_template, level));
+<<<<<<< HEAD
         boolean changed = mBatteryCharging != charging;
         mBatteryCharging = charging;
         if (changed) {
             loadShowBatteryTextSetting();
+=======
+        if (mBatteryPresent != present || mBatteryCharging != charging) {
+            mBatteryPresent = present;
+            mBatteryCharging = charging;
+            updateVisibility();
+>>>>>>> 5.1
         }
     }
 
@@ -130,8 +144,8 @@ public class BatteryLevelTextView extends TextView implements
     public void onAttachedToWindow() {
         super.onAttachedToWindow();
 
-        if (mBatteryController != null) {
-            mBatteryController.addStateChangedCallback(this);
+        if (mBatteryStateRegistar != null) {
+            mBatteryStateRegistar.addStateChangedCallback(this);
         }
         mObserver.observe();
 
@@ -144,13 +158,26 @@ public class BatteryLevelTextView extends TextView implements
         mAttached = false;
         mResolver.unregisterContentObserver(mObserver);
 
-        if (mBatteryController != null) {
-            mBatteryController.removeStateChangedCallback(this);
+        if (mBatteryStateRegistar != null) {
+            mBatteryStateRegistar.removeStateChangedCallback(this);
         }
     }
 
     private void updateVisibility() {
+<<<<<<< HEAD
         if (mShow || mForceShow) {
+=======
+        boolean showNextPercent = mBatteryPresent && (
+                mPercentMode == BatteryController.PERCENTAGE_MODE_OUTSIDE
+                || (mBatteryCharging && mPercentMode == BatteryController.PERCENTAGE_MODE_INSIDE));
+        if (mStyle == BatteryController.STYLE_GONE) {
+            showNextPercent = false;
+        } else if (mStyle == BatteryController.STYLE_TEXT) {
+            showNextPercent = true;
+        }
+
+        if (mBatteryStateRegistar != null && (showNextPercent || mForceShow)) {
+>>>>>>> 5.1
             super.setVisibility(mRequestedVisibility);
         } else {
             super.setVisibility(GONE);

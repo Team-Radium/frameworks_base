@@ -26,6 +26,7 @@ import android.database.sqlite.SQLiteDebug.DbStats;
 import android.os.CancellationSignal;
 import android.os.OperationCanceledException;
 import android.os.ParcelFileDescriptor;
+import android.os.Trace;
 import android.util.Log;
 import android.util.LruCache;
 import android.util.Printer;
@@ -90,8 +91,6 @@ public final class SQLiteConnection implements CancellationSignal.OnCancelListen
 
     private static final String[] EMPTY_STRING_ARRAY = new String[0];
     private static final byte[] EMPTY_BYTE_ARRAY = new byte[0];
-
-    private static final Pattern TRIM_SQL_PATTERN = Pattern.compile("[\\s]*\\n+[\\s]*");
 
     private final CloseGuard mCloseGuard = CloseGuard.get();
 
@@ -1205,7 +1204,11 @@ public final class SQLiteConnection implements CancellationSignal.OnCancelListen
     }
 
     private static String trimSqlForDisplay(String sql) {
-        return TRIM_SQL_PATTERN.matcher(sql).replaceAll(" ");
+        // Note: Creating and caching a regular expression is expensive at preload-time
+        //       and stops compile-time initialization. This pattern is only used when
+        //       dumping the connection, which is a rare (mainly error) case. So:
+        //       DO NOT CACHE.
+        return sql.replaceAll("[\\s]*\\n+[\\s]*", " ");
     }
 
     /**
@@ -1330,6 +1333,7 @@ public final class SQLiteConnection implements CancellationSignal.OnCancelListen
                     }
                 }
                 operation.mCookie = newOperationCookieLocked(index);
+                Trace.asyncTraceBegin(Trace.TRACE_TAG_DATABASE, sql, operation.mCookie);
                 mIndex = index;
                 return operation.mCookie;
             }
@@ -1367,6 +1371,7 @@ public final class SQLiteConnection implements CancellationSignal.OnCancelListen
         private boolean endOperationDeferLogLocked(int cookie) {
             final Operation operation = getOperationLocked(cookie);
             if (operation != null) {
+                Trace.asyncTraceEnd(Trace.TRACE_TAG_DATABASE, operation.mSql, operation.mCookie);
                 operation.mEndTime = System.currentTimeMillis();
                 operation.mFinished = true;
                 return SQLiteDebug.DEBUG_LOG_SLOW_QUERIES && SQLiteDebug.shouldLogSlowQuery(
@@ -1439,9 +1444,6 @@ public final class SQLiteConnection implements CancellationSignal.OnCancelListen
     }
 
     private static final class Operation {
-        private static final SimpleDateFormat sDateFormat =
-                new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
-
         public long mStartTime;
         public long mEndTime;
         public String mKind;
@@ -1496,7 +1498,11 @@ public final class SQLiteConnection implements CancellationSignal.OnCancelListen
         }
 
         private String getFormattedStartTime() {
-            return sDateFormat.format(new Date(mStartTime));
+            // Note: SimpleDateFormat is not thread-safe, cannot be compile-time created, and is
+            //       relatively expensive to create during preloading. This method is only used
+            //       when dumping a connection, which is a rare (mainly error) case. So:
+            //       DO NOT CACHE.
+            return new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS").format(new Date(mStartTime));
         }
     }
 }

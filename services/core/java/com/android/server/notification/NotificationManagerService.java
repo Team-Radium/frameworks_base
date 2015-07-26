@@ -35,8 +35,6 @@ import android.app.KeyguardManager;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
-import android.app.ProfileGroup;
-import android.app.ProfileManager;
 import android.app.StatusBarManager;
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
@@ -99,6 +97,9 @@ import android.view.accessibility.AccessibilityEvent;
 import android.view.accessibility.AccessibilityManager;
 import android.widget.Toast;
 
+import cyanogenmod.app.ProfileGroup;
+import cyanogenmod.app.ProfileManager;
+
 import com.android.internal.R;
 import com.android.internal.util.FastXmlSerializer;
 import com.android.internal.util.cm.SpamFilter;
@@ -125,6 +126,7 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -417,7 +419,7 @@ public class NotificationManagerService extends SystemService {
             try {
                 infile = mPolicyFile.openRead();
                 final XmlPullParser parser = Xml.newPullParser();
-                parser.setInput(infile, null);
+                parser.setInput(infile, StandardCharsets.UTF_8.name());
 
                 int type;
                 String tag;
@@ -475,7 +477,7 @@ public class NotificationManagerService extends SystemService {
 
             try {
                 final XmlSerializer out = new FastXmlSerializer();
-                out.setOutput(stream, "utf-8");
+                out.setOutput(stream, StandardCharsets.UTF_8.name());
                 out.startDocument(null, true);
                 out.startTag(null, TAG_BODY);
                 out.attribute(null, ATTR_VERSION, Integer.toString(DB_VERSION));
@@ -2033,19 +2035,13 @@ public class NotificationManagerService extends SystemService {
                     applyZenModeLocked(r);
                     mRankingHelper.sort(mNotificationList);
 
-                    if (notification.icon != 0) {
+                   if (notification.icon != 0) {
                         StatusBarNotification oldSbn = (old != null) ? old.sbn : null;
                         mListeners.notifyPostedLocked(n, oldSbn);
                     } else {
-                        Slog.e(TAG, "Not posting notification with icon==0: " + notification);
                         if (old != null && !old.isCanceled) {
                             mListeners.notifyRemovedLocked(n);
                         }
-                        // ATTENTION: in a future release we will bail out here
-                        // so that we do not play sounds, show lights, etc. for invalid
-                        // notifications
-                        Slog.e(TAG, "WARNING: In a future release this will crash the app: "
-                                + n.getPackageName());
                     }
 
                     buzzBeepBlinkLocked(r);
@@ -2210,8 +2206,7 @@ public class NotificationManagerService extends SystemService {
             Binder.restoreCallingIdentity(token);
         }
 
-        final ProfileManager profileManager =
-                (ProfileManager) mContext.getSystemService(Context.PROFILE_SERVICE);
+        final ProfileManager profileManager = ProfileManager.getInstance(mContext);
 
         ProfileGroup group = profileManager.getActiveProfileGroup(mContext.getPackageName());
         if (group != null) {

@@ -436,7 +436,9 @@ class ContextImpl extends Context {
 
         registerService(BATTERY_SERVICE, new ServiceFetcher() {
                 public Object createService(ContextImpl ctx) {
-                    return new BatteryManager();
+                    IBinder b = ServiceManager.getService(BATTERY_SERVICE);
+                    IBatteryService service = IBatteryService.Stub.asInterface(b);
+                    return new BatteryManager(service);
                 }});
 
         registerService(NFC_SERVICE, new ServiceFetcher() {
@@ -773,13 +775,6 @@ class ContextImpl extends Context {
                 IBinder b = ServiceManager.getService(APPWIDGET_SERVICE);
                 return new AppWidgetManager(ctx, IAppWidgetService.Stub.asInterface(b));
             }});
-
-        registerService(PROFILE_SERVICE, new ServiceFetcher() {
-            public Object createService(ContextImpl ctx) {
-                final Context outerContext = ctx.getOuterContext();
-                return new ProfileManager (outerContext, ctx.mMainThread.getHandler());
-            }
-        });
 
         registerService(THEME_SERVICE, new ServiceFetcher() {
             public Object createService(ContextImpl ctx) {

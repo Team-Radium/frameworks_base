@@ -22,6 +22,7 @@ import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.graphics.Rect;
+import android.os.UserHandle;
 import android.provider.Settings;
 import android.util.DisplayMetrics;
 import android.util.TypedValue;
@@ -77,7 +78,7 @@ public class RecentsConfiguration {
 
     /** Search bar */
     int searchBarAppWidgetId = -1;
-    public static int searchBarSpaceHeightPx;
+    public int searchBarSpaceHeightPx;
 
     /** Task stack */
     public int taskStackScrollDuration;
@@ -208,7 +209,9 @@ public class RecentsConfiguration {
                 res.getInteger(R.integer.recents_filter_animate_new_views_duration);
 
         // Loading
-        maxNumTasksToLoad = ActivityManager.getMaxRecentTasksStatic();
+        maxNumTasksToLoad = Settings.System.getIntForUser(context.getContentResolver(),
+                Settings.System.RECENTS_MAX_APPS, ActivityManager.getMaxRecentTasksStatic(),
+                UserHandle.USER_CURRENT);
 
         // Search Bar
         searchBarAppWidgetId = settings.getInt(Constants.Values.App.Key_SearchAppWidgetId, -1);
@@ -284,6 +287,8 @@ public class RecentsConfiguration {
         altTabKeyDelay = res.getInteger(R.integer.recents_alt_tab_key_delay);
         fakeShadows = res.getBoolean(R.bool.config_recents_fake_shadows);
         svelteLevel = res.getInteger(R.integer.recents_svelte_level);
+
+        updateShowSearch(context);
     }
 
     /** Updates the system insets */
@@ -306,6 +311,14 @@ public class RecentsConfiguration {
                 Settings.Global.DEVELOPMENT_SETTINGS_ENABLED) != 0;
         lockToAppEnabled = ssp.getSystemSetting(context,
                 Settings.System.LOCK_TO_APP_ENABLED) != 0;
+        updateShowSearch(context);
+    }
+
+    private void updateShowSearch(Context context) {
+        boolean showSearchBar = Settings.System.getInt(context.getContentResolver(),
+                Settings.System.RECENTS_SHOW_SEARCH_BAR, 1) == 1;
+        searchBarSpaceHeightPx = showSearchBar ? context.getResources().getDimensionPixelSize(
+                R.dimen.recents_search_bar_space_height): 0;
     }
 
     /** Called when the configuration has changed, and we want to reset any configuration specific
