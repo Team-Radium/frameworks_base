@@ -1019,7 +1019,7 @@ public class NavigationBarView extends LinearLayout implements BaseStatusBar.Nav
         @Override
         public void onChange(boolean selfChange) {
 	    ContentResolver resolver = mContext.getContentResolver();
-	    mShowDpadArrowKeys = Settings.System.getIntForUser(resolver,
+	    mShowDpadArrowKeys = Settings.System.getInt(resolver,
                     Settings.System.NAVIGATION_BAR_MENU_ARROW_KEYS, 0) != 0;
             mDimNavButtons = (Settings.System.getIntForUser(resolver,
                     Settings.System.DIM_NAV_BUTTONS, 0,
