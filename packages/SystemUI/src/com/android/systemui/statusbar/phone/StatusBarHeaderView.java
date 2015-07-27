@@ -1022,9 +1022,6 @@ public class StatusBarHeaderView extends RelativeLayout implements View.OnClickL
                     resolver, Settings.System.QS_COLOR_SWITCH, 0) == 1;
             mShowTaskManager = Settings.System.getIntForUser(resolver,
                     Settings.System.ENABLE_TASK_MANAGER, 0, currentUserId) == 1;
-             mHeadsUpState = Settings.System.getIntForUser(
-                    resolver, Settings.System.HEADS_UP_NOTIFICATION,
-		    1, UserHandle.USER_CURRENT) == 1;
             updateVisibilities();
             requestCaptureValues();
         }
