@@ -4380,8 +4380,6 @@ public class PhoneStatusBar extends BaseStatusBar implements DemoMode,
             repositionNavigationBar();
             checkBarModes();
             addSidebarView();
-            attachPieContainer(isPieEnabled());
-
         } else {
             loadDimens();
         }
