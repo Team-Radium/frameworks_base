@@ -348,4 +348,6 @@
     <!-- global actions (zen mode buttons) -->
     <java-symbol type="id" name="option4" />
 
+    <!-- LED pulse -->
+    <java-symbol type="bool" name="config_ledCanPulse" />
 </resources>
