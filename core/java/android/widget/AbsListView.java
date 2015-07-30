@@ -31,6 +31,7 @@ import android.os.Message;
 import android.os.Handler;
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.os.SystemProperties;
 import android.os.StrictMode;
 import android.os.SystemProperties;
 import android.os.Trace;
