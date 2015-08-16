@@ -107,6 +107,7 @@ import android.util.DisplayMetrics;
 import android.util.EventLog;
 import android.util.Log;
 import android.util.Pair;
+import android.util.SettingConfirmationHelper;
 import android.view.Display;
 import android.view.Gravity;
 import android.view.HardwareCanvas;
@@ -156,6 +157,7 @@ import com.android.systemui.R;
 import com.android.systemui.cm.UserContentObserver;
 import com.android.systemui.doze.DozeHost;
 import com.android.systemui.doze.DozeLog;
+import com.android.systemui.doze.ShakeSensorManager;
 import com.android.systemui.keyguard.KeyguardViewMediator;
 import com.android.systemui.qs.QSPanel;
 import com.android.systemui.recent.ScreenPinningRequest;
@@ -220,7 +222,7 @@ import java.util.List;
 import java.util.Map;
 
 public class PhoneStatusBar extends BaseStatusBar implements DemoMode,
-        DragDownHelper.DragDownCallback, ActivityStarter, OnUnlockMethodChangedListener {
+        DragDownHelper.DragDownCallback, ActivityStarter, OnUnlockMethodChangedListener, ShakeSensorManager.ShakeListener {
     static final String TAG = "PhoneStatusBar";
     public static final boolean DEBUG = BaseStatusBar.DEBUG;
     public static final boolean SPEW = false;
@@ -324,6 +326,10 @@ public class PhoneStatusBar extends BaseStatusBar implements DemoMode,
     private DozeServiceHost mDozeServiceHost;
     private boolean mScreenOnComingFromTouch;
     private PointF mScreenOnTouchLocation;
+
+    private ShakeSensorManager mShakeSensorManager;
+    private boolean enableShakeCleanByUser;
+    private boolean enableShakeClean;
 
     int mPixelFormat;
     Object mQueueLock = new Object();
@@ -559,6 +565,9 @@ public class PhoneStatusBar extends BaseStatusBar implements DemoMode,
                     Settings.System.APP_SIDEBAR_POSITION),
                     false, this, UserHandle.USER_ALL);
             update();
+                    Settings.System.DEV_FORCE_SHOW_NAVBAR), false, this);
+            resolver.registerContentObserver(Settings.System.getUriFor(
+                    Settings.System.SHAKE_TO_CLEAN_NOTIFICATIONS), false, this);
         }
 
         @Override
@@ -1093,12 +1102,31 @@ public class PhoneStatusBar extends BaseStatusBar implements DemoMode,
         updateCustomRecentsLongPressHandler(true);
     }
 
+    @Override
+    public synchronized void onShake() {
+        ContentResolver resolver = mContext.getContentResolver();
+        enableShakeCleanByUser = Settings.System.getIntForUser(
+                resolver, Settings.System.SHAKE_TO_CLEAN_NOTIFICATIONS, 0, UserHandle.USER_CURRENT) == 2;
+        clearAllNotifications();
+    }
+
+    public void enableShake(boolean enableShakeClean) {
+        if (enableShakeClean && mScreenOnFromKeyguard) {
+            mShakeSensorManager.enable(20);
+        } else {
+            mShakeSensorManager.disable();
+        }
+    }
+
     // ================================================================================
     // Constructing the view
     // ================================================================================
     @ChaosLab(name="GestureAnywhere", classification=Classification.CHANGE_CODE)
     protected PhoneStatusBarView makeStatusBarView() {
         final Context context = mContext;
+
+        mShakeSensorManager = new ShakeSensorManager(mContext, this);
+        mShakeSensorManager.enable(20);
 
         Resources res = context.getResources();
 
@@ -1113,6 +1141,14 @@ public class PhoneStatusBar extends BaseStatusBar implements DemoMode,
 
         mStatusBarWindowContent = (FrameLayout) View.inflate(context,
                 R.layout.super_status_bar, null);
+        if (isMSim()) {
+            mStatusBarWindowContent = (FrameLayout) View.inflate(context,
+                    R.layout.msim_super_status_bar, null);
+        } else {
+            mStatusBarWindowContent = (FrameLayout) View.inflate(context,
+                    R.layout.super_status_bar, null);
+        }
+
         mStatusBarWindowContent.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
@@ -1228,9 +1264,18 @@ public class PhoneStatusBar extends BaseStatusBar implements DemoMode,
         mDismissView.setOnButtonClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+              SettingConfirmationHelper helper =  new SettingConfirmationHelper();
+                  helper.showConfirmationDialogForSetting(
+                  mContext,
+                  mContext.getString(R.string.shake_to_clean_notifications_title),
+                  mContext.getString(R.string.shake_to_clean_notifications_message),
+                  mContext.getResources().getDrawable(R.drawable.shake_to_clean_notifications),
+                  Settings.System.SHAKE_TO_CLEAN_NOTIFICATIONS,
+                  null);
                 clearAllNotifications();
             }
         });
+
         mStackScroller.setDismissView(mDismissView);
         mExpandedContents = mStackScroller;
 
@@ -3058,6 +3103,7 @@ public class PhoneStatusBar extends BaseStatusBar implements DemoMode,
         }
 
         mExpandedVisible = true;
+        enableShake(true);
         if (mNavigationBarView != null)
             mNavigationBarView.setSlippery(true);
 
@@ -3250,6 +3296,7 @@ public class PhoneStatusBar extends BaseStatusBar implements DemoMode,
         mNotificationPanel.closeQs();
 
         mExpandedVisible = false;
+        enableShake(false);
         if (mNavigationBarView != null)
             mNavigationBarView.setSlippery(false);
         visibilityChanged(false);

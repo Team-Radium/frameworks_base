@@ -3623,8 +3623,28 @@ public final class Settings {
          */
         public static final String NAVIGATION_BAR_SHOW = "navigation_bar_show";
 
-		/**
-         * Navigation bar height when it is on protrait
+        /**
+         * Shake to clean recents app screen
+         * @hide
+         *
+         */
+        public static final String SHAKE_TO_CLEAN_RECENTS = "shake_to_clean_recents";
+
+        /**
+         * Shake to clean notifications
+         * @hide
+         *
+         */
+        public static final String SHAKE_TO_CLEAN_NOTIFICATIONS = "shake_to_clean_notifications";
+
+        /**
+         * Settings to backup. This is here so that it's in the same place as the settings
+         * keys and easy to update.
+         *
+         * NOTE: Settings are backed up and restored in the order they appear
+         *       in this array. If you have one setting depending on another,
+         *       make sure that they are ordered appropriately.
+         *
          * @hide
          */
         public static final String NAVIGATION_BAR_HEIGHT = "navigation_bar_height";
@@ -3645,7 +3665,14 @@ public final class Settings {
          * Position of gesture anywhere trigger.  Value is either Gravity.LEFT or Gravity.RIGHT
          * @hide
          */
-        public static final String NAVBAR_LEFT_IN_LANDSCAPE = "navigation_bar_left";
+        public static final String[] SETTINGS_TO_RESET = {
+            QUICK_SETTINGS_QUICK_PULL_DOWN,
+            SAFE_HEADSET_VOLUME,
+            SHAKE_TO_CLEAN_RECENTS,
+            SHAKE_TO_CLEAN_NOTIFICATIONS
+        };
+
+        // Settings moved to Settings.Secure
 
          /**
          * Enable HW keys
