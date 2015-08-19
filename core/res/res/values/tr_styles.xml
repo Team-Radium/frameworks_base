@@ -85,4 +85,8 @@
         <item name="windowEnterAnimation">@anim/translucent_enter</item>
         <item name="windowExitAnimation">@anim/translucent_exit</item>
     </style>
+
+    <style name="Widget.GifView" parent="@android:style/Widget">
+    </style>
+
 </resources>

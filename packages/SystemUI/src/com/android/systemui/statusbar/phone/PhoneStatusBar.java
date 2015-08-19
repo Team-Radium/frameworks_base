@@ -565,10 +565,13 @@ public class PhoneStatusBar extends BaseStatusBar implements DemoMode,
             resolver.registerContentObserver(Settings.System.getUriFor(
                     Settings.System.APP_SIDEBAR_POSITION),
                     false, this, UserHandle.USER_ALL);
-            update();
-                    Settings.System.DEV_FORCE_SHOW_NAVBAR), false, this);
             resolver.registerContentObserver(Settings.System.getUriFor(
-                    Settings.System.SHAKE_TO_CLEAN_NOTIFICATIONS), false, this);
+                    Settings.System.DEV_FORCE_SHOW_NAVBAR),
+		    false, this, UserHandle.USER_ALL);
+            resolver.registerContentObserver(Settings.System.getUriFor(
+                    Settings.System.SHAKE_TO_CLEAN_NOTIFICATIONS),
+		    false, this, UserHandle.USER_ALL);
+            update();
         }
 
         @Override
