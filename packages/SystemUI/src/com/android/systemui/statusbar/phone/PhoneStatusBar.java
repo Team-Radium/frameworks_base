@@ -1141,13 +1141,6 @@ public class PhoneStatusBar extends BaseStatusBar implements DemoMode,
 
         mStatusBarWindowContent = (FrameLayout) View.inflate(context,
                 R.layout.super_status_bar, null);
-        if (isMSim()) {
-            mStatusBarWindowContent = (FrameLayout) View.inflate(context,
-                    R.layout.msim_super_status_bar, null);
-        } else {
-            mStatusBarWindowContent = (FrameLayout) View.inflate(context,
-                    R.layout.super_status_bar, null);
-        }
 
         mStatusBarWindowContent.setOnTouchListener(new View.OnTouchListener() {
             @Override
