@@ -4211,8 +4211,13 @@ public final class Settings {
         public static final String STATUS_BAR_SHOW_TICKER = "status_bar_show_show_ticker";
 
         /**
-         * Heads Up Notifications
-         *
+         * Display second in the Clock
+         * @hide
+         */
+        public static final String CLOCK_USE_SECOND = "clock_use_second";
+
+        /**
+         * Whether the notification light will be allowed when in zen mode during downtime
          * @hide
          */
         public static final String HEADS_UP_NOTIFICATION = "heads_up_enabled";
