@@ -96,18 +96,7 @@ public class Clock implements DemoMode {
     private int mClockFontStyle = FONT_NORMAL;
     private boolean mDemoMode;
     private boolean mAttached;
-    protected int mClockDateDisplay = CLOCK_DATE_DISPLAY_GONE;
-    protected int mClockDateStyle = CLOCK_DATE_STYLE_REGULAR;
-    protected int mClockStyle = STYLE_CLOCK_RIGHT;
-    protected int mClockFontStyle = FONT_NORMAL;
-    protected boolean mShowClock;
-    private int mClockAndDateWidth;
     protected boolean mShowClockSeconds = false;
-
-    private int mAmPmStyle;
-
-    private SettingsObserver mSettingsObserver;
-    private PhoneStatusBar mStatusBar;
 
     class SettingsObserver extends UserContentObserver {
         SettingsObserver(Handler handler) {
@@ -133,51 +122,14 @@ public class Clock implements DemoMode {
                     Settings.System.STATUSBAR_CLOCK_COLOR), false, this, UserHandle.USER_ALL);
             resolver.registerContentObserver(Settings.System.getUriFor(
                     Settings.System.STATUSBAR_CLOCK_FONT_STYLE), false, this, UserHandle.USER_ALL);
-            resolver.registerContentObserver(Settings.System
-                    .getUriFor(Settings.System.STATUS_BAR_CLOCK),
-                    false, this, UserHandle.USER_ALL);
-            resolver.registerContentObserver(Settings.System
-                    .getUriFor(Settings.System.STATUSBAR_CLOCK_AM_PM_STYLE),
-                    false, this, UserHandle.USER_ALL);
-            resolver.registerContentObserver(Settings.System
-                    .getUriFor(Settings.System.STATUSBAR_CLOCK_STYLE), false,
-                    this, UserHandle.USER_ALL);
-            resolver.registerContentObserver(Settings.System
-                    .getUriFor(Settings.System.STATUSBAR_CLOCK_COLOR), false,
-                    this, UserHandle.USER_ALL);
-            resolver.registerContentObserver(Settings.System
-                    .getUriFor(Settings.System.STATUSBAR_CLOCK_DATE_DISPLAY), false,
-                    this, UserHandle.USER_ALL);
-            resolver.registerContentObserver(Settings.System
-                    .getUriFor(Settings.System.STATUSBAR_CLOCK_DATE_STYLE), false,
-                    this, UserHandle.USER_ALL);
-            resolver.registerContentObserver(Settings.System
-                    .getUriFor(Settings.System.STATUSBAR_CLOCK_DATE_FORMAT), false,
-                    this, UserHandle.USER_ALL);
-            resolver.registerContentObserver(Settings.System
-                    .getUriFor(Settings.System.STATUSBAR_CLOCK_FONT_STYLE), false,
-                    mSettingsObserver);
-            resolver.registerContentObserver(Settings.System
-                    .getUriFor(Settings.System.CLOCK_USE_SECOND), false,
-                    mSettingsObserver);
+            resolver.registerContentObserver(Settings.System.getUriFor(
+		    Settings.System.CLOCK_USE_SECOND), false, this, UserHandle.USER_ALL);
             updateSettings();
         }
 
         @Override
         protected void unobserve() {
             super.unobserve();
-        public void onChange(boolean selfChange) {
-            updateSettings();
-        }
-    }
-
-    private final Handler handler = new Handler();
-    TimerTask second;
-
-    public Clock(Context context) {
-        this(context, null);
-    }
-
             mContext.getContentResolver().unregisterContentObserver(this);
         }
 
@@ -186,6 +138,9 @@ public class Clock implements DemoMode {
             updateSettings();
         }
     }
+
+    private final Handler handler = new Handler();
+    TimerTask second;
 
     public Clock(Context context, TextView v) {
         mContext = context;
@@ -301,11 +256,6 @@ public class Clock implements DemoMode {
             result = String.format("%s:%02d", temp, new GregorianCalendar().get(Calendar.SECOND));
         }
 
-        if (mClockDateDisplay != CLOCK_DATE_DISPLAY_GONE) {
-            Date now = new Date();
-
-            String clockDateFormat = Settings.System.getString(getContext().getContentResolver(),
-                    Settings.System.STATUSBAR_CLOCK_DATE_FORMAT);
             if (clockDateFormat == null || clockDateFormat.isEmpty()) {
                 // Set dateString to short uppercase Weekday (Default for AOKP) if empty
                 dateString = DateFormat.format("EEE", now) + " ";
@@ -442,8 +392,6 @@ public class Clock implements DemoMode {
                 Settings.System.STATUS_BAR_DATE_STYLE, CLOCK_DATE_STYLE_REGULAR,
                 UserHandle.USER_CURRENT));
         updateClock();
-        mClockFontStyle = Settings.System.getInt(resolver,
-                Settings.System.STATUSBAR_CLOCK_FONT_STYLE, FONT_NORMAL);
 
         mShowClockSeconds = Settings.System.getIntForUser(resolver,
                 Settings.System.CLOCK_USE_SECOND, 0,
@@ -465,26 +413,6 @@ public class Clock implements DemoMode {
             };
             Timer timer = new Timer();
             timer.schedule(second, 0, 1001);
-        }
-
-        if (mAttached) {
-            setTextColor(clockColor);
-            getFontStyle(mClockFontStyle);
-            updateClockVisibility();
-            updateClock();
-        }
-
-        if (mStatusBar != null) {
-            mStatusBar.setClockAndDateStatus(mClockAndDateWidth, mClockStyle, mShowClock);
-        }
-
-    }
-
-    protected void updateClockVisibility() {
-        if (mClockStyle == STYLE_CLOCK_RIGHT && mShowClock) {
-            setVisibility(View.VISIBLE);
-        } else {
-            setVisibility(View.GONE);
         }
     }
 
