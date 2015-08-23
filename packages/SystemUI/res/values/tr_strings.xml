@@ -72,6 +72,9 @@
 
     <!-- Title shown in recents popup for showing app launch in floating mode -->
     <string name="recent_float_mode_title">Floating mode</string>
+    
+    <!-- TRDS -->
+    <string name="quick_settings_trds_label">TRDS</string>
 
     <!-- Shake to clear Recents apps -->
     <string name="shake_to_clean_recents_title">Shake To Clear Recents applications</string>

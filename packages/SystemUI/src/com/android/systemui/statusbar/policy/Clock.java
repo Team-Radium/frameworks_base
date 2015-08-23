@@ -122,8 +122,8 @@ public class Clock implements DemoMode {
                     Settings.System.STATUSBAR_CLOCK_COLOR), false, this, UserHandle.USER_ALL);
             resolver.registerContentObserver(Settings.System.getUriFor(
                     Settings.System.STATUSBAR_CLOCK_FONT_STYLE), false, this, UserHandle.USER_ALL);
-            resolver.registerContentObserver(Settings.System
-                    .getUriFor(Settings.System.CLOCK_USE_SECOND), false, this, UserHandle.USER_ALL);
+            resolver.registerContentObserver(Settings.System.getUriFor(
+		    Settings.System.CLOCK_USE_SECOND), false, this, UserHandle.USER_ALL);
             updateSettings();
         }
 

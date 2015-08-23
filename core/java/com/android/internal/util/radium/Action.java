@@ -19,8 +19,10 @@ package com.android.internal.util.radium;
 import android.app.Activity;
 import android.app.ActivityManagerNative;
 import android.app.SearchManager;
+import android.app.IUiModeManager;
 import android.content.ActivityNotFoundException;
 import android.content.Context;
+import android.content.res.Configuration;
 import android.content.Intent;
 import android.hardware.input.InputManager;
 import android.media.AudioManager;
@@ -42,6 +44,7 @@ import android.view.IWindowManager;
 import android.view.KeyCharacterMap;
 import android.view.KeyEvent;
 import android.view.WindowManagerGlobal;
+import android.widget.Toast;
 
 import com.android.internal.statusbar.IStatusBarService;
 
@@ -76,6 +79,16 @@ public class Action {
             if (barService == null) {
                 return; // ouch
             }
+
+            if (collapseShade) {
+                if (!action.equals(RadiumActionConstants.ACTION_THEME_SWITCH)) {
+                    try {
+                        barService.collapsePanels();
+                    } catch (RemoteException ex) {
+                    }
+                }
+            }
+
             // process the actions
             if (action.equals(RadiumActionConstants.ACTION_HOME)) {
                 triggerVirtualKeypress(KeyEvent.KEYCODE_HOME, isLongpress);
@@ -253,6 +266,54 @@ public class Action {
                         (PowerManager) context.getSystemService(Context.POWER_SERVICE);
                 if (!powerManager.isScreenOn()) {
                     powerManager.wakeUp(SystemClock.uptimeMillis());
+                }
+                return;
+            } else if (action.equals(RadiumActionConstants.ACTION_THEME_SWITCH)) {
+                boolean overrideCustomColors = Settings.System.getInt(context.getContentResolver(),
+                        Settings.System.OVERRIDE_CUSTOM_COLORS, 1) == 1;
+                boolean autoLightMode = Settings.Secure.getIntForUser(
+                        context.getContentResolver(),
+                        Settings.Secure.UI_THEME_AUTO_MODE, 0,
+                        UserHandle.USER_CURRENT) == 1;
+                boolean state = context.getResources().getConfiguration().uiThemeMode
+                        == Configuration.UI_THEME_MODE_HOLO_DARK;
+                if (autoLightMode) {
+                    try {
+                        barService.collapsePanels();
+                    } catch (RemoteException ex) {
+                    }
+                    Toast.makeText(context,
+                            com.android.internal.R.string.theme_auto_switch_mode_error,
+                            Toast.LENGTH_SHORT).show();
+                    return;
+                }
+                // Handle a switch change
+                // we currently switch between darktheme and lighttheme till either
+                // theme engine is ready or lighttheme is ready. Currently due of
+                // missing light themeing lighttheme = system base theme
+                final IUiModeManager uiModeManagerService = IUiModeManager.Stub.asInterface(
+                        ServiceManager.getService(Context.UI_MODE_SERVICE));
+                try {
+                    uiModeManagerService.setUiThemeMode(state
+                            ? Configuration.UI_THEME_MODE_HOLO_LIGHT
+                            : Configuration.UI_THEME_MODE_HOLO_DARK);
+                } catch (RemoteException e) {
+                }
+                if (overrideCustomColors) {
+                    if (context.getResources().getConfiguration().uiThemeMode
+                                == Configuration.UI_THEME_MODE_HOLO_DARK) {
+                        Settings.System.putInt(context.getContentResolver(),
+                                Settings.System.QS_BACKGROUND_COLOR, 0xff263238);
+                        Settings.System.putInt(context.getContentResolver(),
+                                Settings.System.STATUS_BAR_EXPANDED_HEADER_BG_COLOR,
+                                    0xff384248);
+                    } else {
+                        Settings.System.putInt(context.getContentResolver(),
+                                Settings.System.QS_BACKGROUND_COLOR, 0xff1b1f23);
+                        Settings.System.putInt(context.getContentResolver(),
+                                Settings.System.STATUS_BAR_EXPANDED_HEADER_BG_COLOR,
+                                    0xff263238);
+                    }
                 }
                 return;
             } else {
