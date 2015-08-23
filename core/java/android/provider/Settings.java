@@ -3656,6 +3656,12 @@ public final class Settings {
         public static final String NAVIGATION_BAR_WIDTH = "navigation_bar_width";
 
         /**
+         * Whether navigation bar is placed on the left side in landscape mode
+         * @hide
+         */
+        public static final String NAVBAR_LEFT_IN_LANDSCAPE = "navigation_bar_left";
+
+        /**
          * Setting for clock color
          * @hide
          */
@@ -3666,8 +3672,6 @@ public final class Settings {
          * @hide
          */
         public static final String[] SETTINGS_TO_RESET = {
-            QUICK_SETTINGS_QUICK_PULL_DOWN,
-            SAFE_HEADSET_VOLUME,
             SHAKE_TO_CLEAN_RECENTS,
             SHAKE_TO_CLEAN_NOTIFICATIONS
         };
