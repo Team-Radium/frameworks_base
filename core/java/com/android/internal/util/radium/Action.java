@@ -81,7 +81,7 @@ public class Action {
             }
 
             if (collapseShade) {
-                if (!action.equals(ActionConstants.ACTION_THEME_SWITCH)) {
+                if (!action.equals(RadiumActionConstants.ACTION_THEME_SWITCH)) {
                     try {
                         barService.collapsePanels();
                     } catch (RemoteException ex) {
@@ -268,7 +268,7 @@ public class Action {
                     powerManager.wakeUp(SystemClock.uptimeMillis());
                 }
                 return;
-            } else if (action.equals(ActionConstants.ACTION_THEME_SWITCH)) {
+            } else if (action.equals(RadiumActionConstants.ACTION_THEME_SWITCH)) {
                 boolean overrideCustomColors = Settings.System.getInt(context.getContentResolver(),
                         Settings.System.OVERRIDE_CUSTOM_COLORS, 1) == 1;
                 boolean autoLightMode = Settings.Secure.getIntForUser(
