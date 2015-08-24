@@ -3741,7 +3741,7 @@
     <string name="android_upgrading_starting_apps">Starting apps.</string>
 
     <!-- [CHAR LIMIT=NONE] Message to show in upgrading dialog when the bulk of the upgrade work is done. -->
-    <string name="android_upgrading_complete">Radium-1.2 with Moar Radium is installed.</string>
+    <string name="android_upgrading_complete">Poised-Radium 1.3 is installed.</string>
 
     <!-- Notification text to tell the user that a heavy-weight application is running. -->
     <string name="heavy_weight_notification"><xliff:g id="app">%1$s</xliff:g> running</string>
