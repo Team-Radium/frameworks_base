@@ -4476,6 +4476,17 @@ public class PhoneStatusBar extends BaseStatusBar implements DemoMode,
             repositionNavigationBar();
             checkBarModes();
             addSidebarView();
+            
+            mGreeting = Settings.System.getStringForUser(resolver,
+                    Settings.System.STATUS_BAR_GREETING,
+                    UserHandle.USER_CURRENT);
+            if (mGreeting != null && !TextUtils.isEmpty(mGreeting)) {
+                mRadiumLabel.setText(mGreeting);
+            }
+            mShowLabelTimeout = Settings.System.getIntForUser(resolver,
+                    Settings.System.STATUS_BAR_GREETING_TIMEOUT, 400,
+                    UserHandle.USER_CURRENT);
+
         } else {
             loadDimens();
         }
