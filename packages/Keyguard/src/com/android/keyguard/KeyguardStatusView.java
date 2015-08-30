@@ -81,7 +81,11 @@ public class KeyguardStatusView extends GridLayout implements
 
         @Override
         public void onTimeChanged() {
-            refresh();
+            if (mEnableRefresh) {
+                refresh();
+                updateClockColor();
+                updateClockDateColor();
+            }
         }
 
         @Override
@@ -90,12 +94,18 @@ public class KeyguardStatusView extends GridLayout implements
                 if (DEBUG) Slog.v(TAG, "refresh statusview showing:" + showing);
                 refresh();
                 updateOwnerInfo();
+                updateClockColor();
+                updateClockDateColor();
             }
         }
 
         @Override
         public void onScreenTurnedOn() {
             setEnableMarquee(true);
+            mEnableRefresh = true;
+            refresh();
+            updateClockColor();
+            updateClockDateColor();
         }
 
         @Override
@@ -107,6 +117,8 @@ public class KeyguardStatusView extends GridLayout implements
         public void onUserSwitchComplete(int userId) {
             refresh();
             updateOwnerInfo();
+            updateClockColor();
+            updateClockDateColor();
         }
     };
 
@@ -121,6 +133,8 @@ public class KeyguardStatusView extends GridLayout implements
     public KeyguardStatusView(Context context, AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
         mWeatherController = new WeatherControllerImpl(mContext);
+        updateClockColor();
+        updateClockDateColor();
     }
 
     private void setEnableMarquee(boolean enabled) {
@@ -151,6 +165,8 @@ public class KeyguardStatusView extends GridLayout implements
         setEnableMarquee(screenOn);
         refresh();
         updateOwnerInfo();
+        updateClockColor();
+        updateClockDateColor();
 
         // Disable elegant text height because our fancy colon makes the ymin value huge for no
         // reason.
@@ -375,6 +391,26 @@ public class KeyguardStatusView extends GridLayout implements
             mWeatherConditionImage.setImageBitmap(coloredWeatherIcon);
         } else {
             mWeatherConditionImage.setImageDrawable(weatherIcon);
+        }
+    }
+
+    private void updateClockColor() {
+        ContentResolver resolver = getContext().getContentResolver();
+        int color = Settings.System.getInt(resolver,
+                Settings.System.LOCKSCREEN_CLOCK_COLOR, 0xFFFFFFFF);
+
+        if (mClockView != null) {
+            mClockView.setTextColor(color);
+        }
+    }
+
+    private void updateClockDateColor() {
+        ContentResolver resolver = getContext().getContentResolver();
+        int color = Settings.System.getInt(resolver,
+                Settings.System.LOCKSCREEN_CLOCK_DATE_COLOR, 0xFFFFFFFF);
+
+        if (mDateView != null) {
+            mDateView.setTextColor(color);
         }
     }
 
