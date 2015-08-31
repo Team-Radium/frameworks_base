@@ -85,6 +85,8 @@ public class KeyguardStatusView extends GridLayout implements
                 refresh();
                 updateClockColor();
                 updateClockDateColor();
+                updateOwnerInfoColor();
+                updateAlarmStatusColor();
             }
         }
 
@@ -96,6 +98,8 @@ public class KeyguardStatusView extends GridLayout implements
                 updateOwnerInfo();
                 updateClockColor();
                 updateClockDateColor();
+                updateOwnerInfoColor();
+                updateAlarmStatusColor();
             }
         }
 
@@ -106,6 +110,8 @@ public class KeyguardStatusView extends GridLayout implements
             refresh();
             updateClockColor();
             updateClockDateColor();
+            updateOwnerInfoColor();
+            updateAlarmStatusColor();
         }
 
         @Override
@@ -119,6 +125,8 @@ public class KeyguardStatusView extends GridLayout implements
             updateOwnerInfo();
             updateClockColor();
             updateClockDateColor();
+            updateOwnerInfoColor();
+            updateAlarmStatusColor();
         }
     };
 
@@ -135,6 +143,8 @@ public class KeyguardStatusView extends GridLayout implements
         mWeatherController = new WeatherControllerImpl(mContext);
         updateClockColor();
         updateClockDateColor();
+        updateOwnerInfoColor();
+        updateAlarmStatusColor();
     }
 
     private void setEnableMarquee(boolean enabled) {
@@ -167,6 +177,8 @@ public class KeyguardStatusView extends GridLayout implements
         updateOwnerInfo();
         updateClockColor();
         updateClockDateColor();
+        updateOwnerInfoColor();
+        updateAlarmStatusColor();
 
         // Disable elegant text height because our fancy colon makes the ymin value huge for no
         // reason.
@@ -411,6 +423,26 @@ public class KeyguardStatusView extends GridLayout implements
 
         if (mDateView != null) {
             mDateView.setTextColor(color);
+        }
+    }
+
+    private void updateOwnerInfoColor() {
+        ContentResolver resolver = getContext().getContentResolver();
+        int color = Settings.System.getInt(resolver,
+                Settings.System.LOCKSCREEN_OWNER_INFO_COLOR, 0xFFFFFFFF);
+
+        if (mOwnerInfo != null) {
+            mOwnerInfo.setTextColor(color);
+        }
+    }
+
+    private void updateAlarmStatusColor() {
+        ContentResolver resolver = getContext().getContentResolver();
+        int color = Settings.System.getInt(resolver,
+                Settings.System.LOCKSCREEN_ALARM_COLOR, 0xFFFFFFFF);
+
+        if (mAlarmStatusView != null) {
+            mAlarmStatusView.setTextColor(color);
         }
     }
 
