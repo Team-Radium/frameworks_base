@@ -730,12 +730,6 @@ public class KeyguardBottomAreaView extends FrameLayout implements View.OnClickL
         }
     }
 
-    private void updateEmergencyButton() {
-        boolean enabled = getResources().getBoolean(R.bool.config_showEmergencyButton);
-        if (mEmergencyButton != null) {
-            mLockPatternUtils.updateEmergencyCallButtonState(mEmergencyButton, enabled, false);
-        }
-    }
 
     public void startFinishDozeAnimation() {
         long delay = 0;
@@ -783,6 +777,7 @@ public class KeyguardBottomAreaView extends FrameLayout implements View.OnClickL
         mCameraImageView.updateColorSettings(color);
         mPhoneImageView.updateColorSettings(color);
         mLockIcon.updateColorSettings(color);
+    }
 
     private void updateEmergencyButton() {
         boolean enabled = getResources().getBoolean(R.bool.config_showEmergencyButton);
