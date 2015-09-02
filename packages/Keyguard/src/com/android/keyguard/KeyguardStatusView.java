@@ -26,6 +26,7 @@ import android.content.Context;
 import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.content.res.Resources;
+import android.provider.AlarmClock;
 import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
 import android.provider.AlarmClock;
@@ -45,6 +46,7 @@ import android.widget.TextView;
 
 import com.android.internal.util.cm.WeatherController;
 import com.android.internal.util.cm.WeatherControllerImpl;
+import com.android.internal.util.radium.AltImageHelper;
 import com.android.internal.util.radium.ImageHelper;
 import com.android.internal.widget.LockPatternUtils;
 
@@ -403,6 +405,9 @@ public class KeyguardStatusView extends GridLayout implements
             mWeatherConditionImage.setImageBitmap(coloredWeatherIcon);
         } else {
             mWeatherConditionImage.setImageDrawable(weatherIcon);
+            Bitmap coloredWeatherIcon =
+                    AltImageHelper.getColoredBitmap(weatherIcon, mIconColor);
+            mWeatherConditionImage.setImageBitmap(coloredWeatherIcon);
         }
     }
 
