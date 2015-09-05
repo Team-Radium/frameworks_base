@@ -367,7 +367,9 @@ public class NotificationPanelView extends PanelView implements
         updateHeader();
         mNotificationStackScroller.updateIsSmallScreen(
                 mHeader.getCollapsedHeight() + mQsPeekHeight);
-        requestPanelHeightUpdate();
+        if (mQsSizeChangeAnimator == null) {
+            mQsContainer.setHeightOverride(mQsContainer.getDesiredHeight());
+        }
     }
 
     @Override
@@ -700,9 +702,6 @@ public class NotificationPanelView extends PanelView implements
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
-        if (event.getActionMasked() == MotionEvent.ACTION_UP) {
-            mStatusBar.setVisualizerTouching(false);
-        }
         if (mBlockTouches) {
             return false;
         }
@@ -935,7 +934,6 @@ public class NotificationPanelView extends PanelView implements
     }
 
     private void setQsExpanded(boolean expanded) {
-        mStatusBar.setVisualizerAnimating(expanded);
         boolean changed = mQsExpanded != expanded;
         if (changed) {
             mQsExpanded = expanded;
@@ -1638,7 +1636,9 @@ public class NotificationPanelView extends PanelView implements
         float alphaQsExpansion = 1 - Math.min(1, getQsExpansionFraction() * 2);
         mKeyguardStatusBar.setAlpha(Math.min(alphaNotifications, alphaQsExpansion)
                 * mKeyguardStatusBarAnimateAlpha);
-        mKeyguardBottomArea.setAlpha(Math.min(1 - getQsExpansionFraction(), alphaNotifications));
+        float alphaBottomArea = Math.min(1 - getQsExpansionFraction(), alphaNotifications);
+        mKeyguardBottomArea.setAlpha(alphaBottomArea);
+        mStatusBar.setVisualizerAlpha(alphaBottomArea);
         setQsTranslation(mQsExpansionHeight);
     }
 
@@ -1839,14 +1839,12 @@ public class NotificationPanelView extends PanelView implements
                 || isDozing()) {
             return;
         }
-        mStatusBar.setVisualizerAnimating(true);
         mHintAnimationRunning = true;
         mAfforanceHelper.startHintAnimation(right, new Runnable() {
             @Override
             public void run() {
                 mHintAnimationRunning = false;
                 mStatusBar.onHintFinished();
-                mStatusBar.setVisualizerAnimating(false);
             }
         });
         boolean start = getLayoutDirection() == LAYOUT_DIRECTION_RTL ? right : !right;

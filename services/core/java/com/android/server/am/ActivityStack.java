@@ -1742,7 +1742,7 @@ final class ActivityStack {
                             ? AppTransition.TRANSIT_ACTIVITY_CLOSE
                             : AppTransition.TRANSIT_TASK_CLOSE, false);
                     if (prev.task != next.task) {
-                        mStackSupervisor.mPm.cpuBoost(2000 * 1000);
+                        mStackSupervisor.mPm.launchBoost();
                     }
                 }
                 mWindowManager.setAppWillBeHidden(prev.appToken);
@@ -1759,7 +1759,7 @@ final class ActivityStack {
                                     ? AppTransition.TRANSIT_TASK_OPEN_BEHIND
                                     : AppTransition.TRANSIT_TASK_OPEN, false);
                     if (prev.task != next.task) {
-                        mStackSupervisor.mPm.cpuBoost(2000 * 1000);
+                        mStackSupervisor.mPm.launchBoost();
                     }
                 }
             }
@@ -1973,6 +1973,12 @@ final class ActivityStack {
             ActivityStack lastStack = mStackSupervisor.getLastStack();
             final boolean fromHome = lastStack.isHomeStack();
             if (!isHomeStack() && (fromHome || topTask() != task)) {
+                if( !fromHome && task.isOverHomeStack()) {
+                    int taskNdx = mTaskHistory.indexOf(task);
+                    if ((taskNdx + 1) < mTaskHistory.size()) {
+                        mTaskHistory.get(taskNdx +1).setTaskToReturnTo(task.getTaskToReturnTo());
+                    }
+                }
                 task.setTaskToReturnTo(fromHome
                         ? lastStack.topTask() == null
                                 ? HOME_ACTIVITY_TYPE
