@@ -155,7 +155,7 @@ public class TvStatusBar extends BaseStatusBar {
     }
 
     @Override
-    public void scheduleHeadsUpOpen() {
+    public void scheduleHeadsUpOpen(boolean immediate) {
     }
 
     @Override
