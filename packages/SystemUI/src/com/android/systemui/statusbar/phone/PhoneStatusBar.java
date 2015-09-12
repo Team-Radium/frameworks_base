@@ -587,11 +587,6 @@ public class PhoneStatusBar extends BaseStatusBar implements DemoMode,
                     Settings.System.PIE_CONTROLS))) {
                 attachPieContainer(isPieEnabled());
             } else if (uri.equals(Settings.System.getUriFor(
-                    Settings.System.LOCK_SCREEN_TEXT_COLOR))
-                || uri.equals(Settings.System.getUriFor(
-                    Settings.System.LOCK_SCREEN_ICON_COLOR))) {
-                setKeyguardTextAndIconColors();
-            } else if (uri.equals(Settings.System.getUriFor(
                     Settings.System.NAVIGATION_BAR_SHOW))) {
                 mNavigationBarOverlay.setIsExpanded(noNavBar());
             } else if (uri.equals(Settings.System.getUriFor(
@@ -1571,12 +1566,9 @@ public class PhoneStatusBar extends BaseStatusBar implements DemoMode,
                 new Intent(pm.isScreenOn() ? Intent.ACTION_SCREEN_ON : Intent.ACTION_SCREEN_OFF));
 
         startGlyphRasterizeHack();
-
         mStatusBarHeaderMachine = new StatusBarHeaderMachine(mContext);
         mStatusBarHeaderMachine.addObserver(mHeader);
         mStatusBarHeaderMachine.updateEnablement();
-
-        setKeyguardTextAndIconColors();
         return mStatusBarView;
     }
 
@@ -2767,22 +2759,6 @@ public class PhoneStatusBar extends BaseStatusBar implements DemoMode,
                             .start();
                 }
             }
-        }
-    }
-
-    public void setKeyguardTextAndIconColors() {
-        int textColor =
-                Settings.System.getInt(mContext.getContentResolver(),
-                Settings.System.LOCK_SCREEN_TEXT_COLOR, 0xffffffff);
-        int iconColor =
-                Settings.System.getInt(mContext.getContentResolver(),
-                Settings.System.LOCK_SCREEN_ICON_COLOR, 0xffffffff);
-        if (mKeyguardStatusBar != null) {
-            mKeyguardStatusBar.updateCarrierLabelColor(textColor);
-        }
-        if (mKeyguardBottomArea != null) {
-            mKeyguardBottomArea.updateTextColor(textColor);
-            mKeyguardBottomArea.updateIconColor(iconColor);
         }
     }
 
