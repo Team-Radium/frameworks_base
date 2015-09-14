@@ -699,13 +699,7 @@ public class PhoneStatusBar extends BaseStatusBar implements DemoMode,
                 addSidebarView();
             }
 
-            if (mNavigationBarView != null) {
-                boolean navLeftInLandscape = Settings.System.getIntForUser(mContext.getContentResolver(),
-                        Settings.System.NAVBAR_LEFT_IN_LANDSCAPE, 0, UserHandle.USER_CURRENT) == 1;
-                mNavigationBarView.setLeftInLandscape(navLeftInLandscape);
-            }
             if (mSearchPanelView != null) {
-                mSearchPanelView.setLeftNavbar(navLeftInLandscape);
             }
 
             // This method reads Settings.Secure.RECENTS_LONG_PRESS_ACTIVITY
