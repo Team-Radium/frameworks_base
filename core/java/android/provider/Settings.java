@@ -4189,6 +4189,13 @@ public final class Settings {
          * @hide
          */
         public static final String RECENTS_CLEAR_ALL_LOCATION = "recents_clear_all_location";
+		
+        /**
+         * The alpha value of the On-The-Go overlay.
+         *
+         * @hide
+         */
+        public static final String ON_THE_GO_ALPHA = "on_the_go_alpha";
 
         /**
          * Whether to use gesture anywhere feature.
@@ -4594,6 +4601,22 @@ public final class Settings {
          * @hide
          */
         public static final String LOCKSCREEN_BLUR_RADIUS = "lockscreen_blur_radius";
+
+       /**
+         * The camera instance to use.
+         * 0 = Rear Camera
+         * 1 = Front Camera
+         *
+         * @hide
+         */
+        public static final String ON_THE_GO_CAMERA = "on_the_go_camera";
+
+        /**
+         * Whether the service should restart itself or not.
+         *
+         * @hide
+         */
+        public static final String ON_THE_GO_SERVICE_RESTART = "on_the_go_service_restart";
 
         /**
          * Settings to backup. This is here so that it's in the same place as the settings
