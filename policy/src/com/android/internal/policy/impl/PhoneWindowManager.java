@@ -7706,6 +7706,10 @@ public class PhoneWindowManager implements WindowManagerPolicy {
         return mHasNavigationBar || mDevForceNavbar;
     }
 
+    public boolean needsNavigationBar() {
+        return mHasNavigationBar;
+    }
+
     @Override
     public boolean hasPermanentMenuKey() {
         return !hasNavigationBar() && mHasPermanentMenuKey;
