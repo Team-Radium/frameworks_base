@@ -55,6 +55,7 @@ public class QSConstants {
     public static final String TILE_NAVBAR = "toggleNavBar";
     //public static final String TILE_ONTHEGO = "toggleOnTheGo";
     public static final String TILE_TRDS = "trds";
+    public static final String TILE_BATTERY_SAVER = "battery_saver";
 
     public static final String DYNAMIC_TILE_NEXT_ALARM = "next_alarm";
     public static final String DYNAMIC_TILE_IME_SELECTOR = "ime_selector";
@@ -96,8 +97,9 @@ public class QSConstants {
         STATIC_TILES_AVAILABLE.add(TILE_HEADS_UP);
         STATIC_TILES_AVAILABLE.add(TILE_AMBIENT_DISPLAY);
         STATIC_TILES_AVAILABLE.add(TILE_SYNC);
-        TILES_AVAILABLE.add(TILE_POWER_MENU);
-        TILES_AVAILABLE.add(TILE_NAVBAR);
+        STATIC_TILES_AVAILABLE.add(TILE_POWER_MENU);
+        STATIC_TILES_AVAILABLE.add(TILE_NAVBAR);
+        STATIC_TILES_AVAILABLE.add(TILE_BATTERY_SAVER);
         DYNAMIC_TILES_AVAILABLE.add(DYNAMIC_TILE_NEXT_ALARM);
         DYNAMIC_TILES_AVAILABLE.add(DYNAMIC_TILE_IME_SELECTOR);
         DYNAMIC_TILES_AVAILABLE.add(DYNAMIC_TILE_SU);
