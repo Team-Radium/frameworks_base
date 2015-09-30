@@ -41,11 +41,6 @@ public class RadiumUtils {
                Locale.CHINESE.getLanguage());
     }
 
-    public static boolean isNavBarDefault(Context context) {
-        return context.getResources().getBoolean(
-                com.android.internal.R.bool.config_showNavigationBar);
-    }
-
     /**
      * Checks if a specific package is installed.
      *
