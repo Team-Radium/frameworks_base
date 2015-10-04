@@ -3724,7 +3724,7 @@
       has violated its self-enforced StrictMode policy.</string>
 
     <!-- [CHAR LIMIT=40] Title of dialog that is shown when performing a system upgrade. -->
-    <string name="android_upgrading_title">Random-Radium-1.4 is optimizing itself\u2026</string>
+    <string name="android_upgrading_title">Ionized-Radium-1.5 is optimizing itself\u2026</string>
 
     <!-- [CHAR LIMIT=40] Title of dialog that is shown when system is starting. -->
     <string name="android_start_title">Radium is becoming stable\u2026</string>
