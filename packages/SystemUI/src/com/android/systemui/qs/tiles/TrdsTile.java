@@ -24,7 +24,7 @@ import android.os.ServiceManager;
 import android.provider.Settings.Secure;
 import android.widget.Toast;
 
-import com.android.internal.util.radium.ActionConstants;
+import com.android.internal.util.radium.RadiumActionConstants;
 import com.android.internal.util.radium.Action;
 import com.android.systemui.R;
 import com.android.systemui.qs.QSTile;
@@ -78,7 +78,7 @@ public class TrdsTile extends QSTile<QSTile.BooleanState> {
     @Override
     protected void handleClick() {
         // toggle theme mode
-        Action.processAction(mContext, ActionConstants.ACTION_THEME_SWITCH, false);
+        Action.processAction(mContext, RadiumActionConstants.ACTION_THEME_SWITCH, false);
         boolean newState = !mState.value;
         refreshState(newState);
     }
